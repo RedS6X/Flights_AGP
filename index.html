@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyJet AGP - Monitor de Pista</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .easyjet-orange { background-color: #ff6600; }
+        .easyjet-text { color: #ff6600; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <header class="easyjet-orange text-white p-4 shadow-md sticky top-0 z-50">
+        <h1 class="text-xl font-bold flex justify-between items-center">
+            <span>EZY Monitor AGP</span>
+            <span class="text-sm font-normal opacity-80">v1.0</span>
+        </h1>
+    </header>
+
+    <main class="p-4 max-w-lg mx-auto">
+        <div class="bg-white p-4 rounded-xl shadow-sm mb-6 border-t-4 border-orange-500">
+            <h2 class="font-bold text-gray-700 mb-3">Filtrar por Franja Horaria</h2>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase font-bold">Desde:</label>
+                    <input type="datetime-local" id="startTime" class="w-full border rounded p-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 uppercase font-bold">Hasta:</label>
+                    <input type="datetime-local" id="endTime" class="w-full border rounded p-2 text-sm">
+                </div>
+            </div>
+            <button onclick="consultarVuelos()" class="w-full easyjet-orange text-white font-bold py-3 rounded-lg shadow-md active:scale-95 transition-transform">
+                ACTUALIZAR DATOS
+            </button>
+        </div>
+
+        <section class="mb-8">
+            <h3 class="flex items-center text-lg font-bold text-gray-800 mb-3">
+                <span class="bg-blue-100 text-blue-600 p-1 rounded mr-2">⬇️</span> LLEGADAS (A AGP)
+            </h3>
+            <div id="llegadas-list" class="space-y-3 text-gray-500 italic">Pulsa actualizar para cargar...</div>
+        </section>
+
+        <section>
+            <h3 class="flex items-center text-lg font-bold text-gray-800 mb-3">
+                <span class="bg-green-100 text-green-600 p-1 rounded mr-2">⬆️</span> SALIDAS (DE AGP)
+            </h3>
+            <div id="salidas-list" class="space-y-3 text-gray-500 italic">Pulsa actualizar para cargar...</div>
+        </section>
+    </main>
+
+    <script>
+        // Diccionario básico de ICAO a IATA para EasyJet en AGP
+        const aeropuertos = {
+            'EGKK': 'LGW', 'EGSS': 'STN', 'EGGW': 'LTN', 'EGCC': 'MAN', 
+            'EGPF': 'GLA', 'EGPH': 'EDI', 'EGPB': 'BFS', 'LFLL': 'LYS',
+            'LFMN': 'NCE', 'LFPG': 'CDG', 'EDDB': 'BER', 'LSZH': 'ZRH',
+            'LEMG': 'AGP'
+        };
+
+        async function consultarVuelos() {
+            const btn = document.querySelector('button');
+            const startStr = document.getElementById('startTime').value;
+            const endStr = document.getElementById('endTime').value;
+
+            if (!startStr || !endStr) return alert("Por favor, selecciona entrada y salida.");
+
+            const start = Math.floor(new Date(startStr).getTime() / 1000);
+            const end = Math.floor(new Date(endStr).getTime() / 1000);
+
+            btn.innerText = "CARGANDO...";
+            btn.disabled = true;
+
+            try {
+                // Consultamos Llegadas y Salidas (OpenSky)
+                const [resArr, resDep] = await Promise.all([
+                    fetch(`https://opensky-network.org/api/flights/arrival?airport=LEMG&begin=${start}&end=${end}`),
+                    fetch(`https://opensky-network.org/api/flights/departure?airport=LEMG&begin=${start}&end=${end}`)
+                ]);
+
+                const llegadas = await resArr.json();
+                const salidas = await resDep.json();
+
+                renderList(llegadas, 'llegadas-list', 'ARR');
+                renderList(salidas, 'salidas-list', 'DEP');
+
+            } catch (e) {
+                alert("Error de conexión. OpenSky podría estar saturado.");
+            } finally {
+                btn.innerText = "ACTUALIZAR DATOS";
+                btn.disabled = false;
+            }
+        }
+
+        function renderList(data, elementId, type) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = "";
+
+            // Filtro EasyJet (EZY/EJU)
+            const filtrados = data.filter(f => 
+                f.callsign && (f.callsign.trim().startsWith('EZY') || f.callsign.trim().startsWith('EJU'))
+            );
+
+            if (filtrados.length === 0) {
+                container.innerHTML = "<p class='text-sm text-gray-400'>No hay vuelos en esta franja.</p>";
+                return;
+            }
+
+            filtrados.forEach(v => {
+                const hora = new Date(v.lastSeen * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const origen = aeropuertos[v.estDepartureAirport] || v.estDepartureAirport || '???';
+                const destino = aeropuertos[v.estArrivalAirport] || v.estArrivalAirport || '???';
+                
+                // Lógica de Parking (Simplificada: si ha llegado hace más de 5 min se asume aparcado)
+                const isAparcado = type === 'ARR' && (Date.now() / 1000 > v.lastSeen + 300);
+
+                container.innerHTML += `
+                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 ${type === 'ARR' ? 'border-blue-500' : 'border-green-500'}">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="easyjet-text font-black text-lg">${v.callsign.trim()}</span>
+                                <div class="text-xs font-bold text-gray-500">${origen} ➔ ${destino}</div>
+                            </div>
+                            <div class="text-right">
+                                <span class="block font-bold text-gray-700">${hora}</span>
+                                <span class="text-[10px] px-2 py-1 rounded ${isAparcado ? 'bg-gray-200 text-gray-600' : 'bg-orange-100 text-orange-600 font-bold'}">
+                                    ${isAparcado ? '🅿️ EN PARKING' : '✈️ EN OPERACIÓN'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
