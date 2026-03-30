@@ -2,13 +2,14 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>EZY AGP Monitor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .easyjet-orange { background-color: #ff6600; }
         .easyjet-text { color: #ff6600; }
-        input[type="time"], input[type="date"] { -webkit-appearance: none; }
+        .loading-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-900">
@@ -16,7 +17,7 @@
     <header class="easyjet-orange text-white p-4 shadow-lg sticky top-0 z-50">
         <div class="max-w-lg mx-auto flex justify-between items-center">
             <h1 class="text-xl font-black italic tracking-tighter">easyJet AGP</h1>
-            <div id="live-clock" class="text-xs font-mono bg-black/20 px-2 py-1 rounded">00:00</div>
+            <div id="live-clock" class="text-xs font-mono bg-black/20 px-2 py-1 rounded text-white">00:00:00</div>
         </div>
     </header>
 
@@ -24,42 +25,42 @@
         <div class="bg-white p-4 rounded-2xl shadow-sm mb-6 border border-gray-100">
             <div class="grid grid-cols-2 gap-3 mb-4">
                 <div class="col-span-2">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Fecha de Turno</label>
-                    <input type="date" id="dateInput" class="w-full border-b-2 border-gray-100 p-2 font-bold focus:border-orange-500 outline-none">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase">Fecha</label>
+                    <input type="date" id="dateInput" class="w-full border-b-2 border-gray-100 p-2 font-bold outline-none focus:border-orange-500 bg-transparent">
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-gray-400 uppercase">Inicio</label>
-                    <input type="time" id="startTime" class="w-full border-b-2 border-gray-100 p-2 font-bold outline-none">
+                    <input type="time" id="startTime" class="w-full border-b-2 border-gray-100 p-2 font-bold outline-none focus:border-orange-500 bg-transparent">
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-gray-400 uppercase">Fin</label>
-                    <input type="time" id="endTime" class="w-full border-b-2 border-gray-100 p-2 font-bold outline-none">
+                    <input type="time" id="endTime" class="w-full border-b-2 border-gray-100 p-2 font-bold outline-none focus:border-orange-500 bg-transparent">
                 </div>
             </div>
 
             <div class="flex gap-2 mb-4">
-                <button onclick="setFranja(2)" class="flex-1 text-[10px] bg-gray-100 py-2 rounded-full font-bold hover:bg-orange-100">+2H</button>
-                <button onclick="setFranja(4)" class="flex-1 text-[10px] bg-gray-100 py-2 rounded-full font-bold hover:bg-orange-100">+4H</button>
-                <button onclick="setFranja(6)" class="flex-1 text-[10px] bg-gray-100 py-2 rounded-full font-bold hover:bg-orange-100">+6H</button>
+                <button onclick="setFranja(2)" class="flex-1 text-[10px] bg-gray-100 py-2 rounded-lg font-bold">2H</button>
+                <button onclick="setFranja(4)" class="flex-1 text-[10px] bg-gray-100 py-2 rounded-lg font-bold">4H</button>
+                <button onclick="setFranja(6)" class="flex-1 text-[10px] bg-gray-100 py-2 rounded-lg font-bold">6H</button>
             </div>
             
-            <button onclick="consultar()" id="btnMain" class="w-full easyjet-orange text-white font-black py-4 rounded-xl shadow-orange-200 shadow-lg active:scale-95 transition-all uppercase text-sm">
+            <button onclick="consultar()" id="btnMain" class="w-full easyjet-orange text-white font-black py-4 rounded-xl shadow-lg active:scale-95 transition-all uppercase text-sm">
                 Actualizar Vista
             </button>
         </div>
 
-        <div id="status-msg" class="text-center text-xs text-gray-400 mb-4 hidden">Consultando espacio aéreo...</div>
+        <div id="status-msg" class="text-center text-[10px] font-bold text-orange-500 mb-4 hidden loading-pulse uppercase">Sincronizando con espacio aéreo...</div>
 
         <div class="space-y-6">
             <section>
-                <h3 class="text-blue-600 font-black text-xs tracking-widest mb-3 flex items-center">
+                <h3 class="text-blue-600 font-black text-xs tracking-widest mb-3 flex items-center px-1">
                     <span class="bg-blue-600 text-white px-2 py-0.5 rounded mr-2">ARR</span> LLEGADAS
                 </h3>
                 <div id="llegadas-list" class="space-y-3"></div>
             </section>
 
             <section>
-                <h3 class="text-green-600 font-black text-xs tracking-widest mb-3 flex items-center">
+                <h3 class="text-green-600 font-black text-xs tracking-widest mb-3 flex items-center px-1">
                     <span class="bg-green-600 text-white px-2 py-0.5 rounded mr-2">DEP</span> SALIDAS
                 </h3>
                 <div id="salidas-list" class="space-y-3"></div>
@@ -68,35 +69,52 @@
     </main>
 
     <script>
-        const aeropuertos = {'EGKK':'LGW','EGSS':'STN','EGGW':'LTN','EGCC':'MAN','EGPF':'GLA','EGPH':'EDI','EGPB':'BFS','LFLL':'LYS','LFMN':'NCE','LFPG':'CDG','EDDB':'BER','LSZH':'ZRH','LEMG':'AGP','LFSB':'BSL','EGBB':'BHX','LIRF':'FCO','LIMC':'MXP','LPPT':'LIS'};
+        const aeropuertos = {'EGKK':'LGW','EGSS':'STN','EGGW':'LTN','EGCC':'MAN','EGPF':'GLA','EGPH':'EDI','EGPB':'BFS','LFLL':'LYS','LFMN':'NCE','LFPG':'CDG','EDDB':'BER','LSZH':'ZRH','LEMG':'AGP','LFSB':'BSL','EGBB':'BHX','LIRF':'FCO','LIMC':'MXP','LPPT':'LIS','LPPR':'OPO','EBBR':'BRU','LFBO':'TLS'};
 
-        // Inicialización automática
         window.onload = () => {
             const ahora = new Date();
             document.getElementById('dateInput').valueAsDate = ahora;
-            
-            const h = ahora.getHours().toString().padStart(2, '0');
-            const m = ahora.getMinutes().toString().padStart(2, '0');
-            document.getElementById('startTime').value = `${h}:${m}`;
-            
-            setFranja(2); // Por defecto 2 horas
+            document.getElementById('startTime').value = ahora.getHours().toString().padStart(2, '0') + ":" + ahora.getMinutes().toString().padStart(2, '0');
+            setFranja(2);
             actualizarReloj();
             setInterval(actualizarReloj, 1000);
-            consultar(); // Carga automática inicial
+            consultar(); 
         };
 
         function actualizarReloj() {
-            document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+            document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('es-ES', {hour12:false});
         }
 
         function setFranja(horas) {
-            const inicio = document.getElementById('startTime').value;
-            if(!inicio) return;
-            const [h, m] = inicio.split(':');
-            const fin = new Date();
+            const start = document.getElementById('startTime').value;
+            if(!start) return;
+            const [h, m] = start.split(':');
+            let fin = new Date();
             fin.setHours(parseInt(h) + horas);
             fin.setMinutes(parseInt(m));
-            document.getElementById('endTime').value = `${fin.getHours().toString().padStart(2,'0')}:${fin.getMinutes().toString().padStart(2,'0')}`;
+            document.getElementById('endTime').value = fin.getHours().toString().padStart(2,'0') + ":" + fin.getMinutes().toString().padStart(2,'0');
+        }
+
+        async function fetchWithRetry(url) {
+            // Intentamos con 3 proxies diferentes por si uno falla
+            const proxies = [
+                "https://api.allorigins.win/get?url=",
+                "https://thingproxy.freeboard.io/fetch/",
+                "https://corsproxy.io/?"
+            ];
+
+            for (let proxy of proxies) {
+                try {
+                    const targetUrl = proxy === "https://api.allorigins.win/get?url=" ? proxy + encodeURIComponent(url) : proxy + url;
+                    const res = await fetch(targetUrl, { timeout: 8000 });
+                    if (res.ok) {
+                        const data = await res.json();
+                        // AllOrigins devuelve los datos dentro de .contents
+                        return data.contents ? JSON.parse(data.contents) : data;
+                    }
+                } catch (e) { console.warn(`Proxy ${proxy} falló, reintentando...`); }
+            }
+            throw new Error("Todos los proxies fallaron");
         }
 
         async function consultar() {
@@ -113,23 +131,16 @@
             msg.classList.remove('hidden');
 
             try {
-                // Usamos un proxy diferente para evitar bloqueos
-                const proxy = "https://thingproxy.freeboard.io/fetch/";
                 const base = "https://opensky-network.org/api/flights";
-                
-                const [rArr, rDep] = await Promise.all([
-                    fetch(`${proxy}${base}/arrival?airport=LEMG&begin=${startTs}&end=${endTs}`),
-                    fetch(`${proxy}${base}/departure?airport=LEMG&begin=${startTs}&end=${endTs}`)
+                const [dArr, dDep] = await Promise.all([
+                    fetchWithRetry(`${base}/arrival?airport=LEMG&begin=${startTs}&end=${endTs}`),
+                    fetchWithRetry(`${base}/departure?airport=LEMG&begin=${startTs}&end=${endTs}`)
                 ]);
-
-                const dArr = await rArr.json();
-                const dDep = await rDep.json();
 
                 render(dArr, 'llegadas-list', 'ARR');
                 render(dDep, 'salidas-list', 'DEP');
             } catch (e) {
-                alert("Servidor ocupado. Reintentando de forma automática...");
-                setTimeout(consultar, 3000);
+                alert("Error de conexión. Las redes del aeropuerto podrían estar bloqueando el acceso o el servidor está saturado.");
             } finally {
                 btn.disabled = false;
                 msg.classList.add('hidden');
@@ -139,31 +150,38 @@
         function render(data, id, type) {
             const container = document.getElementById(id);
             container.innerHTML = "";
-            const easy = data.filter(f => f.callsign && (f.callsign.trim().startsWith('EZY') || f.callsign.trim().startsWith('EJU')));
-
-            if(easy.length === 0) {
-                container.innerHTML = "<div class='text-[10px] text-gray-400 py-4 border-2 border-dashed rounded-xl text-center'>SIN MOVIMIENTOS</div>";
+            if(!data || !Array.isArray(data)) {
+                container.innerHTML = "<div class='text-[10px] text-gray-400 py-4 text-center'>SIN DATOS</div>";
                 return;
             }
 
+            const easy = data.filter(f => f.callsign && (f.callsign.trim().startsWith('EZY') || f.callsign.trim().startsWith('EJU')));
+
+            if(easy.length === 0) {
+                container.innerHTML = "<div class='text-[10px] text-gray-400 py-4 text-center uppercase font-bold'>No hay vuelos programados</div>";
+                return;
+            }
+
+            easy.sort((a,b) => (type === 'ARR' ? a.lastSeen - b.lastSeen : a.firstSeen - b.firstSeen));
+
             easy.forEach(v => {
                 const ts = type === 'ARR' ? v.lastSeen : v.firstSeen;
-                const h = new Date(ts * 1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                const h = new Date(ts * 1000).toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit', hour12:false});
                 const origen = aeropuertos[v.estDepartureAirport] || v.estDepartureAirport || '???';
                 const destino = aeropuertos[v.estArrivalAirport] || v.estArrivalAirport || '???';
                 const ahora = Math.floor(Date.now()/1000);
                 const isPast = ahora > ts;
 
                 container.innerHTML += `
-                    <div class="bg-white p-4 rounded-2xl shadow-sm flex justify-between items-center border border-gray-100">
+                    <div class="bg-white p-4 rounded-xl shadow-sm flex justify-between items-center border border-gray-100 mb-2">
                         <div>
-                            <div class="easyjet-text font-black text-xl leading-none">${v.callsign.trim()}</div>
-                            <div class="text-[10px] font-bold text-gray-400 mt-1">${origen} ➔ ${destino}</div>
+                            <div class="easyjet-text font-black text-lg leading-none">${v.callsign.trim()}</div>
+                            <div class="text-[9px] font-bold text-gray-400 mt-1 tracking-wider uppercase">${origen} ➔ ${destino}</div>
                         </div>
                         <div class="text-right">
                             <div class="font-black text-gray-800 text-lg leading-none">${h}</div>
                             <div class="mt-1 text-[8px] font-bold px-2 py-0.5 rounded-full inline-block ${isPast ? 'bg-gray-100 text-gray-400' : 'bg-green-100 text-green-600 animate-pulse'}">
-                                ${isPast ? 'EN TIERRA' : 'EN RUTA'}
+                                ${isPast ? 'COMPLETADO' : 'EN RUTA'}
                             </div>
                         </div>
                     </div>
