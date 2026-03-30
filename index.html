@@ -3,58 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EasyJet AGP - Monitor</title>
+    <title>EZY AGP Monitor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .easyjet-orange { background-color: #ff6600; }
         .easyjet-text { color: #ff6600; }
+        input[type="time"], input[type="date"] { -webkit-appearance: none; }
     </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-50 font-sans text-gray-900">
 
-    <header class="easyjet-orange text-white p-4 shadow-md sticky top-0 z-50">
-        <h1 class="text-xl font-bold flex justify-between items-center">
-            <span>EZY Monitor AGP</span>
-            <span id="status-dot" class="h-3 w-3 bg-green-400 rounded-full border-2 border-white"></span>
-        </h1>
+    <header class="easyjet-orange text-white p-4 shadow-lg sticky top-0 z-50">
+        <div class="max-w-lg mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-black italic tracking-tighter">easyJet AGP</h1>
+            <div id="live-clock" class="text-xs font-mono bg-black/20 px-2 py-1 rounded">00:00</div>
+        </div>
     </header>
 
     <main class="p-4 max-w-lg mx-auto">
-        <div class="bg-white p-4 rounded-xl shadow-sm mb-6 border-t-4 border-orange-500">
-            <h2 class="font-bold text-gray-700 mb-3 text-sm uppercase">Configurar Turno</h2>
-            
-            <div class="mb-4">
-                <label class="block text-xs text-gray-500 font-bold mb-1">FECHA:</label>
-                <input type="date" id="dateInput" class="w-full border rounded p-3 bg-gray-50">
+        <div class="bg-white p-4 rounded-2xl shadow-sm mb-6 border border-gray-100">
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="col-span-2">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase">Fecha de Turno</label>
+                    <input type="date" id="dateInput" class="w-full border-b-2 border-gray-100 p-2 font-bold focus:border-orange-500 outline-none">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase">Inicio</label>
+                    <input type="time" id="startTime" class="w-full border-b-2 border-gray-100 p-2 font-bold outline-none">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase">Fin</label>
+                    <input type="time" id="endTime" class="w-full border-b-2 border-gray-100 p-2 font-bold outline-none">
+                </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3 mb-4">
-                <div>
-                    <label class="block text-xs text-gray-500 font-bold mb-1">HORA INICIO:</label>
-                    <input type="time" id="startTime" class="w-full border rounded p-3 bg-gray-50">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-500 font-bold mb-1">HORA FIN:</label>
-                    <input type="time" id="endTime" class="w-full border rounded p-3 bg-gray-50">
-                </div>
+            <div class="flex gap-2 mb-4">
+                <button onclick="setFranja(2)" class="flex-1 text-[10px] bg-gray-100 py-2 rounded-full font-bold hover:bg-orange-100">+2H</button>
+                <button onclick="setFranja(4)" class="flex-1 text-[10px] bg-gray-100 py-2 rounded-full font-bold hover:bg-orange-100">+4H</button>
+                <button onclick="setFranja(6)" class="flex-1 text-[10px] bg-gray-100 py-2 rounded-full font-bold hover:bg-orange-100">+6H</button>
             </div>
             
-            <button onclick="consultarVuelos()" id="btnMain" class="w-full easyjet-orange text-white font-black py-4 rounded-lg shadow-md active:scale-95 transition-all uppercase tracking-wider">
-                Actualizar Vuelos
+            <button onclick="consultar()" id="btnMain" class="w-full easyjet-orange text-white font-black py-4 rounded-xl shadow-orange-200 shadow-lg active:scale-95 transition-all uppercase text-sm">
+                Actualizar Vista
             </button>
         </div>
 
-        <div class="space-y-8">
+        <div id="status-msg" class="text-center text-xs text-gray-400 mb-4 hidden">Consultando espacio aéreo...</div>
+
+        <div class="space-y-6">
             <section>
-                <h3 class="text-blue-600 font-black mb-3 flex items-center">
-                    <span class="mr-2">LLEGADAS</span> <hr class="flex-grow border-blue-200">
+                <h3 class="text-blue-600 font-black text-xs tracking-widest mb-3 flex items-center">
+                    <span class="bg-blue-600 text-white px-2 py-0.5 rounded mr-2">ARR</span> LLEGADAS
                 </h3>
                 <div id="llegadas-list" class="space-y-3"></div>
             </section>
 
             <section>
-                <h3 class="text-green-600 font-black mb-3 flex items-center">
-                    <span class="mr-2">SALIDAS</span> <hr class="flex-grow border-green-200">
+                <h3 class="text-green-600 font-black text-xs tracking-widest mb-3 flex items-center">
+                    <span class="bg-green-600 text-white px-2 py-0.5 rounded mr-2">DEP</span> SALIDAS
                 </h3>
                 <div id="salidas-list" class="space-y-3"></div>
             </section>
@@ -62,98 +68,103 @@
     </main>
 
     <script>
-        // Diccionario de aeropuertos comunes para easyJet en Málaga
-        const aeropuertos = {
-            'EGKK': 'LGW', 'EGSS': 'STN', 'EGGW': 'LTN', 'EGCC': 'MAN', 
-            'EGPF': 'GLA', 'EGPH': 'EDI', 'EGPB': 'BFS', 'LFLL': 'LYS',
-            'LFMN': 'NCE', 'LFPG': 'CDG', 'EDDB': 'BER', 'LSZH': 'ZRH',
-            'LEMG': 'AGP', 'LFSB': 'BSL', 'EGBB': 'BHX', 'EGCN': 'DSA',
-            'LPPT': 'LIS', 'LPPR': 'OPO', 'LIRF': 'FCO', 'LIMC': 'MXP'
+        const aeropuertos = {'EGKK':'LGW','EGSS':'STN','EGGW':'LTN','EGCC':'MAN','EGPF':'GLA','EGPH':'EDI','EGPB':'BFS','LFLL':'LYS','LFMN':'NCE','LFPG':'CDG','EDDB':'BER','LSZH':'ZRH','LEMG':'AGP','LFSB':'BSL','EGBB':'BHX','LIRF':'FCO','LIMC':'MXP','LPPT':'LIS'};
+
+        // Inicialización automática
+        window.onload = () => {
+            const ahora = new Date();
+            document.getElementById('dateInput').valueAsDate = ahora;
+            
+            const h = ahora.getHours().toString().padStart(2, '0');
+            const m = ahora.getMinutes().toString().padStart(2, '0');
+            document.getElementById('startTime').value = `${h}:${m}`;
+            
+            setFranja(2); // Por defecto 2 horas
+            actualizarReloj();
+            setInterval(actualizarReloj, 1000);
+            consultar(); // Carga automática inicial
         };
 
-        // Ponemos la fecha de hoy por defecto
-        document.getElementById('dateInput').valueAsDate = new Date();
+        function actualizarReloj() {
+            document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+        }
 
-        async function consultarVuelos() {
+        function setFranja(horas) {
+            const inicio = document.getElementById('startTime').value;
+            if(!inicio) return;
+            const [h, m] = inicio.split(':');
+            const fin = new Date();
+            fin.setHours(parseInt(h) + horas);
+            fin.setMinutes(parseInt(m));
+            document.getElementById('endTime').value = `${fin.getHours().toString().padStart(2,'0')}:${fin.getMinutes().toString().padStart(2,'0')}`;
+        }
+
+        async function consultar() {
             const btn = document.getElementById('btnMain');
+            const msg = document.getElementById('status-msg');
             const date = document.getElementById('dateInput').value;
             const startH = document.getElementById('startTime').value;
             const endH = document.getElementById('endTime').value;
 
-            if (!date || !startH || !endH) return alert("Completa la fecha y las horas.");
-
-            // Convertir a Unix Timestamp
             const startTs = Math.floor(new Date(`${date}T${startH}`).getTime() / 1000);
             const endTs = Math.floor(new Date(`${date}T${endH}`).getTime() / 1000);
 
-            btn.innerText = "CONECTANDO...";
             btn.disabled = true;
+            msg.classList.remove('hidden');
 
             try {
-                // Usamos AllOrigins para saltar el bloqueo de CORS
-                const proxy = "https://api.allorigins.win/get?url=";
-                const urlArr = encodeURIComponent(`https://opensky-network.org/api/flights/arrival?airport=LEMG&begin=${startTs}&end=${endTs}`);
-                const urlDep = encodeURIComponent(`https://opensky-network.org/api/flights/departure?airport=LEMG&begin=${startTs}&end=${endTs}`);
-
-                const [resArr, resDep] = await Promise.all([
-                    fetch(proxy + urlArr),
-                    fetch(proxy + urlDep)
+                // Usamos un proxy diferente para evitar bloqueos
+                const proxy = "https://thingproxy.freeboard.io/fetch/";
+                const base = "https://opensky-network.org/api/flights";
+                
+                const [rArr, rDep] = await Promise.all([
+                    fetch(`${proxy}${base}/arrival?airport=LEMG&begin=${startTs}&end=${endTs}`),
+                    fetch(`${proxy}${base}/departure?airport=LEMG&begin=${startTs}&end=${endTs}`)
                 ]);
 
-                const dataArr = await resArr.json();
-                const dataDep = await resDep.json();
+                const dArr = await rArr.json();
+                const dDep = await rDep.json();
 
-                renderList(JSON.parse(dataArr.contents), 'llegadas-list', 'ARR');
-                renderList(JSON.parse(dataDep.contents), 'salidas-list', 'DEP');
-
+                render(dArr, 'llegadas-list', 'ARR');
+                render(dDep, 'salidas-list', 'DEP');
             } catch (e) {
-                console.error(e);
-                alert("Error al obtener datos. Inténtalo de nuevo en unos segundos.");
+                alert("Servidor ocupado. Reintentando de forma automática...");
+                setTimeout(consultar, 3000);
             } finally {
-                btn.innerText = "ACTUALIZAR VUELOS";
                 btn.disabled = false;
+                msg.classList.add('hidden');
             }
         }
 
-        function renderList(data, elementId, type) {
-            const container = document.getElementById(elementId);
+        function render(data, id, type) {
+            const container = document.getElementById(id);
             container.innerHTML = "";
+            const easy = data.filter(f => f.callsign && (f.callsign.trim().startsWith('EZY') || f.callsign.trim().startsWith('EJU')));
 
-            if (!data || data.length === 0) {
-                container.innerHTML = "<p class='text-xs text-gray-400'>No hay vuelos registrados en esta franja.</p>";
+            if(easy.length === 0) {
+                container.innerHTML = "<div class='text-[10px] text-gray-400 py-4 border-2 border-dashed rounded-xl text-center'>SIN MOVIMIENTOS</div>";
                 return;
             }
 
-            const filtrados = data.filter(f => 
-                f.callsign && (f.callsign.trim().startsWith('EZY') || f.callsign.trim().startsWith('EJU'))
-            );
-
-            if (filtrados.length === 0) {
-                container.innerHTML = "<p class='text-xs text-gray-400 italic font-medium'>No hay vuelos de EasyJet programados.</p>";
-                return;
-            }
-
-            filtrados.forEach(v => {
-                const timestamp = type === 'ARR' ? v.lastSeen : v.firstSeen;
-                const hora = new Date(timestamp * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            easy.forEach(v => {
+                const ts = type === 'ARR' ? v.lastSeen : v.firstSeen;
+                const h = new Date(ts * 1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
                 const origen = aeropuertos[v.estDepartureAirport] || v.estDepartureAirport || '???';
                 const destino = aeropuertos[v.estArrivalAirport] || v.estArrivalAirport || '???';
-                
-                // Lógica visual de estado
-                const ahora = Math.floor(Date.now() / 1000);
-                const isAparcado = type === 'ARR' && (ahora > v.lastSeen + 300);
+                const ahora = Math.floor(Date.now()/1000);
+                const isPast = ahora > ts;
 
                 container.innerHTML += `
-                    <div class="bg-white p-4 rounded-xl shadow-sm border-l-8 ${type === 'ARR' ? 'border-blue-500' : 'border-green-500'} flex justify-between items-center">
-                        <div class="flex-1">
-                            <span class="easyjet-text font-black text-xl tracking-tighter">${v.callsign.trim()}</span>
-                            <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">${origen} ➔ ${destino}</div>
+                    <div class="bg-white p-4 rounded-2xl shadow-sm flex justify-between items-center border border-gray-100">
+                        <div>
+                            <div class="easyjet-text font-black text-xl leading-none">${v.callsign.trim()}</div>
+                            <div class="text-[10px] font-bold text-gray-400 mt-1">${origen} ➔ ${destino}</div>
                         </div>
-                        <div class="text-right border-l pl-4 border-gray-100">
-                            <span class="block font-black text-gray-800 text-lg leading-none mb-1">${hora}</span>
-                            <span class="text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${isAparcado ? 'bg-gray-100 text-gray-400' : 'bg-orange-500 text-white animate-pulse'}">
-                                ${isAparcado ? 'P-Asignado' : 'Operando'}
-                            </span>
+                        <div class="text-right">
+                            <div class="font-black text-gray-800 text-lg leading-none">${h}</div>
+                            <div class="mt-1 text-[8px] font-bold px-2 py-0.5 rounded-full inline-block ${isPast ? 'bg-gray-100 text-gray-400' : 'bg-green-100 text-green-600 animate-pulse'}">
+                                ${isPast ? 'EN TIERRA' : 'EN RUTA'}
+                            </div>
                         </div>
                     </div>
                 `;
