@@ -1,668 +1,253 @@
-<!DOCTYPE html>
-
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EasyJet · AGP Málaga</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
-
-<style>
-:root {
-  --orange:    #FF6600;
-  --orange-dk: #cc5200;
-  --black:     #0a0a0a;
-  --g1: #1a1a1a; --g2: #2a2a2a; --g3: #444;
-  --g4: #777;   --g5: #aaa;    --g6: #ddd;
-  --g7: #f0f0f0; --white: #fafafa;
-  --mono: 'IBM Plex Mono', 'Courier New', Courier, monospace;
-  --sans: 'IBM Plex Sans Condensed', 'Arial Narrow', Arial, sans-serif;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; }
-
-body {
-  font-family: var(--sans);
-  background: var(--g7);
-  color: var(--black);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ── HEADER ── */
-#header {
-  background: var(--orange);
-  color: #fff;
-  padding: 10px 16px 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.3);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-#top-row {
-  display: flex; align-items: baseline;
-  justify-content: space-between; gap: 12px;
-}
-#logo {
-  font-family: var(--mono);
-  font-size: 20px; font-weight: 700;
-  letter-spacing: 2px; text-transform: uppercase; line-height: 1;
-}
-#logo small {
-  font-weight: 400; font-size: 11px;
-  letter-spacing: 1px; opacity: .75; margin-left: 8px;
-}
-#clock {
-  font-family: var(--mono);
-  font-size: 26px; font-weight: 700;
-  letter-spacing: 3px; line-height: 1;
-  min-width: 100px; text-align: right;
-}
-#controls-row {
-  display: flex; align-items: center;
-  gap: 6px; flex-wrap: wrap;
-}
-.lbl {
-  font-size: 10px; font-weight: 700;
-  letter-spacing: 1px; text-transform: uppercase; opacity: .7;
-}
-.sep { opacity: .45; font-size: 13px; margin: 0 1px; }
-
-input[type="time"] {
-  background: rgba(0,0,0,.2);
-  border: 1px solid rgba(255,255,255,.35);
-  color: #fff; padding: 4px 8px;
-  font-family: var(--mono); font-size: 15px; font-weight: 600;
-  border-radius: 2px; outline: none; cursor: pointer;
-}
-input[type="time"]:focus {
-  border-color: rgba(255,255,255,.8);
-  background: rgba(0,0,0,.3);
-}
-input[type="time"]::-webkit-calendar-picker-indicator {
-  filter: invert(1); opacity: .55; cursor: pointer;
-}
-
-.btn-h {
-  background: rgba(0,0,0,.15);
-  border: 1px solid rgba(255,255,255,.3);
-  color: #fff; padding: 4px 14px; cursor: pointer;
-  font-family: var(--mono); font-size: 13px; font-weight: 700;
-  border-radius: 2px; transition: background .1s;
-  letter-spacing: .5px; user-select: none;
-}
-.btn-h:hover  { background: rgba(0,0,0,.3); }
-.btn-h.active { background: #fff; color: var(--orange); border-color: #fff; }
-
-#status-row {
-  display: flex; align-items: center;
-  justify-content: space-between;
-  font-family: var(--mono); font-size: 10px;
-  letter-spacing: .3px; opacity: .85;
-}
-#refresh-btn {
-  background: transparent; border: none; color: #fff;
-  cursor: pointer; font-family: var(--mono); font-size: 10px;
-  text-decoration: underline; padding: 0;
-}
-
-/* ── NOTICES ── */
-.notice {
-  display: none; font-family: var(--mono); font-size: 10px;
-  letter-spacing: .3px; padding: 5px 16px; border-bottom: 1px solid;
-}
-.notice-warn  { background:#fff3cd; color:#856404; border-color:#ffc107; }
-.notice-cache { background:#d1ecf1; color:#0c5460; border-color:#bee5eb; }
-.notice-live  { background:#d4edda; color:#155724; border-color:#c3e6cb; }
-
-/* ── GRID ── */
-#main {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-.col { background: var(--white); overflow: hidden; }
-.col:first-child { border-right: 2px solid var(--g6); }
-
-.col-header {
-  display: flex; align-items: center;
-  justify-content: space-between;
-  padding: 7px 14px;
-  background: var(--g1); color: #fff;
-  border-bottom: 2px solid var(--orange);
-}
-.col-title {
-  font-family: var(--mono); font-size: 11px; font-weight: 700;
-  letter-spacing: 2px; text-transform: uppercase;
-  display: flex; align-items: center; gap: 7px;
-}
-.col-arrow { font-size: 15px; color: var(--orange); }
-.col-count {
-  font-family: var(--mono); font-size: 11px; color: var(--g5);
-  background: var(--g2); padding: 1px 8px; border-radius: 10px;
-  min-width: 26px; text-align: center;
-}
-
-/* ── TABLE ── */
-table { width: 100%; border-collapse: collapse; }
-thead tr { background: var(--g7); border-bottom: 1px solid var(--g6); }
-thead th {
-  text-align: left; padding: 5px 8px 5px 14px;
-  font-family: var(--mono); font-size: 9px; font-weight: 700;
-  color: var(--g4); text-transform: uppercase; letter-spacing: 1px;
-  white-space: nowrap;
-}
-tbody tr { border-bottom: 1px solid var(--g7); transition: background .1s; }
-tbody tr:hover { background: #fff8f2; }
-tbody td {
-  padding: 7px 8px 7px 14px; font-size: 12px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  vertical-align: middle;
-}
-.td-num  { font-family:var(--mono); font-weight:700; font-size:13px; color:var(--black); letter-spacing:1px; }
-.td-time { font-family:var(--mono); font-weight:600; font-size:14px; color:var(--orange-dk); letter-spacing:1px; }
-.td-route{ color:var(--g3); font-size:12px; max-width:150px; }
-
-.badge {
-  display: inline-block; font-family: var(--mono);
-  font-size: 9px; font-weight: 700; letter-spacing: .5px;
-  padding: 1px 5px; border-radius: 2px; text-transform: uppercase;
-}
-.badge-live   { background:#d4edda; color:#155724; }
-.badge-desc   { background:#fff3cd; color:#856404; }
-.badge-ground { background:#d1ecf1; color:#0c5460; }
-.badge-hist   { background:var(--g7); color:var(--g4); }
-
-.msg-cell {
-  text-align: center; padding: 28px 16px;
-  font-family: var(--mono); font-size: 11px;
-  color: var(--g5); letter-spacing: .5px;
-}
-.msg-err { color: #cc2200; }
-
-.dots::after {
-  content:''; animation: ld 1.2s steps(3,end) infinite;
-}
-@keyframes ld {
-  0%{content:'';}33%{content:'.';}66%{content:'..';}100%{content:'...';}
-}
-
-/* ── FOOTER ── */
-#footer {
-  padding: 5px 16px; font-family: var(--mono); font-size: 9px;
-  color: var(--g5); background: var(--g7); border-top: 1px solid var(--g6);
-  display: flex; justify-content: space-between; flex-wrap: wrap;
-  gap: 4px; letter-spacing: .3px;
-}
-
-@media (max-width: 640px) {
-  #clock { font-size: 20px; } #logo { font-size: 16px; }
-  #main  { grid-template-columns: 1fr; }
-  .col:first-child { border-right:none; border-bottom:3px solid var(--orange); }
-  .td-route { max-width: 100px; }
-}
-</style>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+  <title>AGP EasyJet Monitor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            easy: {
+              orange: "#ff6600",
+              light: "#fff7f2",
+              dark: "#e65c00"
+            }
+          }
+        }
+      }
+    }
+  </script>
 </head>
-<body>
+<body class="bg-gray-100 text-gray-900">
+  <div class="min-h-screen">
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-20">
+      <div class="max-w-6xl mx-auto px-4 py-4">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <h1 class="text-xl font-bold text-easy-orange">EasyJet AGP Live</h1>
+            <p class="text-sm text-gray-500">Monitor de vuelos EZY / EJU en Málaga</p>
+          </div>
+          <div class="text-right">
+            <div id="lastUpdate" class="text-xs text-gray-500">—</div>
+            <div id="statusLine" class="text-xs font-medium text-gray-600">Listo</div>
+          </div>
+        </div>
+      </div>
+    </header>
 
-<div id="header">
-  <div id="top-row">
-    <div id="logo">EASYJET <small>· AGP MÁLAGA</small></div>
-    <div id="clock">--:--:--</div>
+    <main class="max-w-6xl mx-auto px-4 py-4 space-y-4">
+      <section class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Día de operación</label>
+            <input id="opDate" type="date" class="w-full rounded-xl border-gray-300 focus:border-easy-orange focus:ring-easy-orange" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Hora inicio</label>
+            <input id="startHour" type="time" step="3600" class="w-full rounded-xl border-gray-300 focus:border-easy-orange focus:ring-easy-orange" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Hora fin</label>
+            <input id="endHour" type="time" step="3600" class="w-full rounded-xl border-gray-300 focus:border-easy-orange focus:ring-easy-orange" />
+          </div>
+          <div class="flex items-end">
+            <button id="refreshBtn" class="w-full rounded-xl bg-easy-orange hover:bg-easy-dark text-white font-semibold py-2.5 transition">
+              Actualizar
+            </button>
+          </div>
+        </div>
+        <p class="mt-3 text-xs text-gray-500">
+          Al cargar, la hora de inicio se redondea automáticamente a la hora en punto actual.
+        </p>
+      </section>
+
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="bg-white rounded-2xl shadow-sm border border-blue-200 overflow-hidden">
+          <div class="px-4 py-3 bg-blue-600 text-white font-bold">LLEGADAS</div>
+          <div id="arrivals" class="p-4 space-y-3"></div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-green-200 overflow-hidden">
+          <div class="px-4 py-3 bg-green-600 text-white font-bold">SALIDAS</div>
+          <div id="departures" class="p-4 space-y-3"></div>
+        </div>
+      </section>
+    </main>
   </div>
-  <div id="controls-row">
-    <span class="lbl">Desde</span>
-    <input type="time" id="t-start">
-    <span class="sep">→</span>
-    <span class="lbl">Hasta</span>
-    <input type="time" id="t-end">
-    &nbsp;
-    <button class="btn-h active" onclick="setRange(this,2)">2H</button>
-    <button class="btn-h"        onclick="setRange(this,4)">4H</button>
-    <button class="btn-h"        onclick="setRange(this,6)">6H</button>
-  </div>
-  <div id="status-row">
-    <span id="st-msg">Iniciando…</span>
-    <button id="refresh-btn" onclick="doRefresh()">↻ ACTUALIZAR</button>
-  </div>
-</div>
 
-<div id="n-future" class="notice notice-warn">⚠ Franja con tiempo futuro — solo se muestran vuelos ya registrados.</div>
-<div id="n-cache"  class="notice notice-cache">📦 Datos cacheados (OpenSky 429) — reintentando en 3 min.</div>
-<div id="n-live"   class="notice notice-live">🛰 Modo en vivo — posiciones actuales en radio 60NM de AGP (OpenSky states).</div>
+  <script>
+    // IMPORTANTE: coloca aquí la URL de tu Cloudflare Worker.
+    const WORKER_URL = "https://TU-WORKER.tuusuario.workers.dev";
+    const AGP = "LEMG";
+    const EZY_RE = /\b(EZY|EJU)[A-Z0-9]{1,5}\b/i;
 
-<div id="main">
-  <div class="col">
-    <div class="col-header">
-      <div class="col-title"><span class="col-arrow">▼</span> LLEGADAS</div>
-      <span class="col-count" id="cnt-arr">—</span>
-    </div>
-    <table>
-      <thead><tr>
-        <th>Vuelo</th><th>Origen</th><th>Hora</th><th>Estado</th>
-      </tr></thead>
-      <tbody id="tb-arr">
-        <tr><td colspan="4" class="msg-cell"><span class="dots">Cargando</span></td></tr>
-      </tbody>
-    </table>
-  </div>
+    const AIRPORTS = {
+      LEMG: "Málaga",
+      EGKK: "London Gatwick",
+      LFMN: "Nice",
+      LFPG: "Paris Charles de Gaulle",
+      LFPO: "Paris Orly",
+      LEBL: "Barcelona",
+      LEPA: "Palma de Mallorca",
+      LIRF: "Rome Fiumicino",
+      LOWW: "Vienna",
+      EHAM: "Amsterdam Schiphol",
+      EDDL: "Düsseldorf",
+      EDDM: "Munich",
+      EDDF: "Frankfurt",
+      EIDW: "Dublin",
+      EGLL: "London Heathrow",
+      EGSS: "London Stansted",
+      ESSA: "Stockholm Arlanda",
+      KJFK: "New York JFK",
+      LCLK: "Larnaca",
+      LPPT: "Lisbon",
+      LSZH: "Zurich"
+    };
 
-  <div class="col">
-    <div class="col-header">
-      <div class="col-title"><span class="col-arrow">▲</span> SALIDAS</div>
-      <span class="col-count" id="cnt-dep">—</span>
-    </div>
-    <table>
-      <thead><tr>
-        <th>Vuelo</th><th>Destino</th><th>Hora</th><th>Estado</th>
-      </tr></thead>
-      <tbody id="tb-dep">
-        <tr><td colspan="4" class="msg-cell"><span class="dots">Cargando</span></td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+    const $ = (id) => document.getElementById(id);
 
-<div id="footer">
-  <span>FUENTE: OPENSKY-NETWORK.ORG · HISTÓRICO + EN VIVO (STATES)</span>
-  <span id="ft-src">AUTO-REFRESH 90s · CACHÉ 5min</span>
-</div>
+    function pad(n) { return String(n).padStart(2, "0"); }
 
-<script>
-'use strict';
-
-// ── Constantes ──────────────────────────────────────────────────
-const TZ        = 'Europe/Madrid';
-const ICAO_AGP  = 'LEMG';
-const AGP_LAT   = 36.6749;
-const AGP_LON   = -4.4991;
-const CACHE_TTL = 5 * 60 * 1000;
-const RETRY_MS  = 3 * 60 * 1000;
-
-// Bounding box ~60NM alrededor de AGP para states/all
-const BBOX = { lamin:36.0, lamax:37.4, lomin:-5.6, lomax:-3.4 };
-
-const EZY_PFX = ['EZY','EJU','EZS','EZT'];
-const isEZY   = cs => cs && EZY_PFX.some(p => cs.trim().toUpperCase().startsWith(p));
-
-// ── Mapa aeropuertos ─────────────────────────────────────────────
-const AP = {
-  EGLL:'Londres Heathrow', EGKK:'Londres Gatwick',  EGSS:'Londres Stansted',
-  EGGW:'Londres Luton',    EGLC:'Londres City',      EGNX:'East Midlands',
-  EGPF:'Glasgow',          EGPH:'Edimburgo',          EGCC:'Mánchester',
-  EGBB:'Birmingham',       EGGD:'Bristol',            EGHI:'Southampton',
-  EGNM:'Leeds Bradford',   EGNT:'Newcastle',          EGAC:'Belfast City',
-  EGAA:'Belfast Intl',     EGPE:'Inverness',          EGPD:'Aberdeen',
-  LFPG:'París CDG',        LFPO:'París Orly',         LFMN:'Niza',
-  LFLL:'Lyon',             LFBO:'Toulouse',           LFRS:'Nantes',
-  LFBD:'Burdeos',          LFMT:'Montpellier',        LFKJ:'Ajaccio',
-  LSGG:'Ginebra',          LSZH:'Zúrich',             LFSB:'Basilea',
-  EDDM:'Múnich',           EDDF:'Fráncfort',          EDDB:'Berlín',
-  EDDL:'Düsseldorf',       EDDS:'Stuttgart',          EDDH:'Hamburgo',
-  EDDK:'Colonia',          EHAM:'Ámsterdam',          EHRD:'Róterdam',
-  EBBR:'Bruselas',
-  LIRF:'Roma Fiumicino',   LIMC:'Milán Malpensa',     LIME:'Bérgamo',
-  LIPZ:'Venecia',          LIRQ:'Florencia',          LICC:'Catania',
-  LICJ:'Palermo',          LIEA:'Alghero',            LIEE:'Cagliari',
-  LIRA:'Roma Ciampino',    LIRP:'Pisa',               LIBD:'Bari',
-  LEMD:'Madrid',           LEBL:'Barcelona',          LEMG:'Málaga AGP',
-  LEVC:'Valencia',         LEAL:'Alicante',           LEVX:'Vigo',
-  LEZL:'Sevilla',          LEBB:'Bilbao',             LEGE:'Girona',
-  LEPA:'Palma Mallorca',   LEIB:'Ibiza',              LEMH:'Menorca',
-  GCTS:'Tenerife Sur',     GCXO:'Tenerife Norte',     GCLP:'Las Palmas GC',
-  GCLA:'La Palma',         GCFV:'Fuerteventura',      GCRR:'Lanzarote',
-  LEST:'Santiago',         LEAS:'Asturias',           LECO:'A Coruña',
-  LEAM:'Almería',          LPPT:'Lisboa',             LPPR:'Oporto',
-  LPFR:'Faro',             LPMA:'Madeira',            LOWW:'Viena',
-  LKPR:'Praga',            LHBP:'Budapest',           EPWA:'Varsovia',
-  EPKK:'Cracovia',         EKCH:'Copenhague',         ESGG:'Gotemburgo',
-  ESSA:'Estocolmo',        ENGM:'Oslo',               LGAV:'Atenas',
-  LGIR:'Creta',            LGTS:'Tesalónica',         LGRP:'Rodas',
-  LGKR:'Corfú',            LGZA:'Zakynthos',          LGMK:'Mikonos',
-  LGSR:'Santorini',        LCLK:'Lárnaca',            LCPH:'Pafos',
-  LLBG:'Tel Aviv',         GMMN:'Casablanca',         GMAD:'Agadir',
-  GMMX:'Marrakech',        LTAI:'Antalya',            LTBS:'Dalaman',
-  LTFE:'Bodrum',           LTFM:'Estambul',           LDDU:'Dubrovnik',
-  LDSP:'Split',            LBBO:'Burgas',             LBWN:'Varna',
-};
-const apName = icao => {
-  if (!icao) return '—';
-  return AP[icao.trim().toUpperCase()] || icao.trim().toUpperCase();
-};
-
-// ── Tiempo ─────────────────────────────────────────────────────
-const fmt3 = d => d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false,timeZone:TZ});
-const fmt2  = d => d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ});
-
-function timeToDate(s){
-  const [h,m]=s.split(':').map(Number);
-  const d=new Date(); d.setHours(h,m,0,0); return d;
-}
-function dateToInput(d){
-  const s=d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ});
-  const p=s.split(':');
-  return p[0].padStart(2,'0')+':'+p[1].padStart(2,'0');
-}
-const floorHour = d=>{ const r=new Date(d); r.setMinutes(0,0,0); return r; };
-const toUnix    = d=>Math.floor(d.getTime()/1000);
-const fromUnix  = u=>new Date(u*1000);
-
-// ── Estado global ───────────────────────────────────────────────
-let activeH  = 2;
-let last429  = 0;
-let fetching = false;
-
-// ── Caché (localStorage) ─────────────────────────────────────────
-function cSet(k,v){ try{ localStorage.setItem(k,JSON.stringify({ts:Date.now(),v})); }catch(_){} }
-function cGet(k,ttl){
-  try{
-    const r=localStorage.getItem(k); if(!r)return null;
-    const o=JSON.parse(r);
-    if(Date.now()-o.ts>ttl)return null;
-    return o.v;
-  }catch(_){return null;}
-}
-function cStale(k){
-  try{ const r=localStorage.getItem(k); return r?JSON.parse(r).v:null; }catch(_){return null;}
-}
-
-// ── fetchTimeout: reemplaza AbortSignal.timeout (mejor compatibilidad) ──
-function fetchTimeout(url, ms){
-  return new Promise((res,rej)=>{
-    const t = setTimeout(()=>rej(new Error('Timeout')), ms);
-    fetch(url)
-      .then(r=>{ clearTimeout(t); res(r); })
-      .catch(e=>{ clearTimeout(t); rej(e); });
-  });
-}
-
-// ── safeFetch con caché + 429 ─────────────────────────────────────
-async function safeFetch(url, ckey){
-  const fresh = cGet(ckey, CACHE_TTL);
-  if(fresh) return {data:fresh, src:'cache'};
-
-  const r = await fetchTimeout(url, 12000);
-
-  if(r.status===404) return {data:[], src:'ok'};
-
-  if(r.status===429){
-    last429=Date.now();
-    const stale=cStale(ckey);
-    if(stale) return {data:stale, src:'stale'};
-    throw new Error('429_noCache');
-  }
-
-  if(!r.ok) throw new Error(`HTTP ${r.status}`);
-
-  const data=(await r.json())||[];
-  cSet(ckey,data);
-  return {data, src:'ok'};
-}
-
-// ── OpenSky: historial llegadas/salidas ───────────────────────────
-async function fetchHistory(begin, fin){
-  const B='https://opensky-network.org/api/flights';
-  const [ra,rd]=await Promise.all([
-    safeFetch(`${B}/arrival?airport=${ICAO_AGP}&begin=${begin}&end=${fin}`,
-              `osk_a_${begin}_${fin}`),
-    safeFetch(`${B}/departure?airport=${ICAO_AGP}&begin=${begin}&end=${fin}`,
-              `osk_d_${begin}_${fin}`)
-  ]);
-  const arr=ra.data.filter(f=>isEZY(f.callsign));
-  const dep=rd.data.filter(f=>isEZY(f.callsign));
-  arr.sort((a,b)=>(a.lastSeen||0)-(b.lastSeen||0));
-  dep.sort((a,b)=>(a.firstSeen||0)-(b.firstSeen||0));
-  return {arr, dep,
-    isCache: ra.src!=='ok'||rd.src!=='ok',
-    isStale: ra.src==='stale'||rd.src==='stale'};
-}
-
-// ── OpenSky: posiciones actuales (states/all) ─────────────────────
-// Formato estado: [icao24, callsign, origin_country, time_pos, last_contact,
-//   lon(5), lat(6), baro_alt(7), on_ground(8), velocity(9), track(10), vert_rate(11),
-//   sensors, geo_alt, squawk, spi, pos_src]
-function bearing(la1,lo1,la2,lo2){
-  const dL=(lo2-lo1)*Math.PI/180;
-  const l1=la1*Math.PI/180, l2=la2*Math.PI/180;
-  const y=Math.sin(dL)*Math.cos(l2);
-  const x=Math.cos(l1)*Math.sin(l2)-Math.sin(l1)*Math.cos(l2)*Math.cos(dL);
-  return (Math.atan2(y,x)*180/Math.PI+360)%360;
-}
-function normA(a){ a=a%360; if(a>180)a-=360; if(a<-180)a+=360; return a; }
-
-async function fetchLive(){
-  const url=`https://opensky-network.org/api/states/all`
-           +`?lamin=${BBOX.lamin}&lomin=${BBOX.lomin}`
-           +`&lamax=${BBOX.lamax}&lomax=${BBOX.lomax}`;
-  const ckey='osk_states';
-
-  // Caché corta para live: 20 segundos
-  let data = cGet(ckey, 20000);
-  if(!data){
-    const r=await fetchTimeout(url, 12000);
-    if(r.status===429){ last429=Date.now(); throw new Error('429 en states/all'); }
-    if(!r.ok) throw new Error(`States HTTP ${r.status}`);
-    const json=await r.json();
-    data=json.states||[];
-    cSet(ckey,data);
-  }
-
-  const ezy=data.filter(s=>isEZY(s[1]));
-  const arr=[], dep=[];
-  const nowStr=fmt2(new Date());
-
-  for(const s of ezy){
-    const cs    = (s[1]||'').trim().toUpperCase();
-    const lon   = s[5]||0;
-    const lat   = s[6]||0;
-    const onGnd = s[8]===true||s[8]===1;
-    const track = s[10]||0;
-
-    const bear=bearing(lat,lon,AGP_LAT,AGP_LON);
-    const diff=Math.abs(normA(bear-track));
-
-    const entry={_live:true, callsign:cs, nowStr, _gnd:onGnd};
-    // En tierra cerca de AGP → llegada (acaba de aterrizar)
-    if(onGnd)        arr.push(entry);
-    else if(diff<70) arr.push({...entry, _desc:'acercándose'});
-    else             dep.push({...entry, _desc:'alejándose'});
-  }
-
-  return {arr, dep};
-}
-
-// ── Render llegadas ───────────────────────────────────────────────
-function renderArr(flights, isLive){
-  const tb=document.getElementById('tb-arr');
-  document.getElementById('cnt-arr').textContent=flights.length||'0';
-  if(!flights.length){
-    tb.innerHTML=`<tr><td colspan="4" class="msg-cell">${
-      isLive?'Sin aeronaves EasyJet en el área ahora':'Sin llegadas EasyJet en esta franja'
-    }</td></tr>`;
-    return;
-  }
-  tb.innerHTML=flights.map(f=>{
-    let num,orig,hora,badge;
-    if(f._live){
-      num=f.callsign||'—'; orig='—'; hora=f.nowStr;
-      badge=f._gnd
-        ?`<span class="badge badge-ground">EN PISTA</span>`
-        :`<span class="badge badge-live">▼ LLEGANDO</span>`;
-    } else {
-      num=(f.callsign||'').trim();
-      orig=apName(f.estDepartureAirport);
-      hora=f.lastSeen?fmt2(fromUnix(f.lastSeen)):'—:—';
-      badge=`<span class="badge badge-hist">HIST</span>`;
-    }
-    return `<tr>
-      <td class="td-num">${num}</td>
-      <td class="td-route">${orig}</td>
-      <td class="td-time">${hora}</td>
-      <td>${badge}</td>
-    </tr>`;
-  }).join('');
-}
-
-// ── Render salidas ────────────────────────────────────────────────
-function renderDep(flights, isLive){
-  const tb=document.getElementById('tb-dep');
-  document.getElementById('cnt-dep').textContent=flights.length||'0';
-  if(!flights.length){
-    tb.innerHTML=`<tr><td colspan="4" class="msg-cell">${
-      isLive?'Sin aeronaves EasyJet en el área ahora':'Sin salidas EasyJet en esta franja'
-    }</td></tr>`;
-    return;
-  }
-  tb.innerHTML=flights.map(f=>{
-    let num,dest,hora,badge;
-    if(f._live){
-      num=f.callsign||'—'; dest='—'; hora=f.nowStr;
-      badge=f._gnd
-        ?`<span class="badge badge-ground">EN PISTA</span>`
-        :`<span class="badge badge-desc">▲ SALIENDO</span>`;
-    } else {
-      num=(f.callsign||'').trim();
-      dest=apName(f.estArrivalAirport);
-      hora=f.firstSeen?fmt2(fromUnix(f.firstSeen)):'—:—';
-      badge=`<span class="badge badge-hist">HIST</span>`;
-    }
-    return `<tr>
-      <td class="td-num">${num}</td>
-      <td class="td-route">${dest}</td>
-      <td class="td-time">${hora}</td>
-      <td>${badge}</td>
-    </tr>`;
-  }).join('');
-}
-
-// ── UI helpers ────────────────────────────────────────────────────
-const show=  (id,v)=>document.getElementById(id).style.display=v?'block':'none';
-const setSt= msg=>document.getElementById('st-msg').textContent=msg;
-
-function setLoading(){
-  const h=`<tr><td colspan="4" class="msg-cell"><span class="dots">Cargando</span></td></tr>`;
-  ['tb-arr','tb-dep'].forEach(id=>document.getElementById(id).innerHTML=h);
-  ['cnt-arr','cnt-dep'].forEach(id=>document.getElementById(id).textContent='…');
-  setSt('Consultando…');
-}
-function showErr(msg){
-  const h=`<tr><td colspan="4" class="msg-cell msg-err">⚠ ${msg}</td></tr>`;
-  ['tb-arr','tb-dep'].forEach(id=>document.getElementById(id).innerHTML=h);
-  ['cnt-arr','cnt-dep'].forEach(id=>document.getElementById(id).textContent='!');
-  setSt(`Error: ${msg}`);
-}
-
-// ── Live fallback ─────────────────────────────────────────────────
-async function tryLive(){
-  setLoading();
-  try{
-    const {arr,dep}=await fetchLive();
-    show('n-live',true); show('n-cache',false);
-    renderArr(arr,true); renderDep(dep,true);
-    setSt(`En vivo · ${arr.length+dep.length} aeronave(s) · ${fmt3(new Date())}`);
-    document.getElementById('ft-src').textContent='FUENTE: OPENSKY STATES · EN VIVO · BBOX 60NM';
-  } catch(e){
-    showErr(`Live: ${e.message}`);
-  }
-}
-
-// ── Fetch principal ───────────────────────────────────────────────
-async function fetchData(){
-  if(fetching) return;
-  fetching=true;
-
-  const sv=document.getElementById('t-start').value;
-  const ev=document.getElementById('t-end').value;
-  if(!sv||!ev){ fetching=false; return; }
-
-  const now=new Date();
-  let start=timeToDate(sv);
-  let end  =timeToDate(ev);
-  if(end<=start) end.setDate(end.getDate()+1);
-
-  show('n-future', end>now);
-  show('n-cache',  false);
-  show('n-live',   false);
-
-  // Franja completamente futura → modo live
-  if(start>now){
-    setSt('Franja futura — activando modo en vivo…');
-    await tryLive(); fetching=false; return;
-  }
-
-  setLoading();
-
-  try{
-    // Bloqueado por 429 reciente → live directamente
-    if(Date.now()-last429 < RETRY_MS){
-      await tryLive(); fetching=false; return;
+    function roundNowToHour() {
+      const d = new Date();
+      d.setMinutes(0, 0, 0);
+      return d;
     }
 
-    const begin=toUnix(start);
-    const fin  =toUnix(new Date(Math.min(end.getTime(),now.getTime())));
-    const {arr,dep,isCache,isStale}=await fetchHistory(begin,fin);
+    function setDefaultFilters() {
+      const now = new Date();
+      const today = new Date(now);
+      $("opDate").value = today.toISOString().slice(0, 10);
+      const rounded = roundNowToHour();
+      $("startHour").value = `${pad(rounded.getHours())}:00`;
+      const end = new Date(rounded.getTime() + 6 * 60 * 60 * 1000);
+      $("endHour").value = `${pad(end.getHours())}:00`;
+    }
 
-    if(isStale) show('n-cache',true);
-    const src=isStale?'Cacheado (429)':isCache?'Caché':'OpenSky';
-    setSt(`${arr.length+dep.length} vuelo(s) · ${src} · ${fmt3(now)}`);
-    renderArr(arr,false); renderDep(dep,false);
-    document.getElementById('ft-src').textContent='FUENTE: OPENSKY-NETWORK.ORG · HISTÓRICO';
+    function timeStr(ts) {
+      const d = new Date(ts * 1000);
+      return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
 
-  } catch(e){
-    if(e.message==='429_noCache') await tryLive();
-    else showErr(e.message);
-  }
+    function dateTimeToUnix(dateStr, timeStrVal) {
+      const [y, m, d] = dateStr.split("-").map(Number);
+      const [hh, mm] = timeStrVal.split(":").map(Number);
+      return Math.floor(new Date(y, m - 1, d, hh, mm, 0, 0).getTime() / 1000);
+    }
 
-  fetching=false;
-}
+    function airportLabel(code) {
+      return AIRPORTS[code] || code || "—";
+    }
 
-// ── Controles ─────────────────────────────────────────────────────
-function initTimes(){
-  const now=new Date(), start=floorHour(now);
-  const end=new Date(start.getTime()+activeH*3600000);
-  document.getElementById('t-start').value=dateToInput(start);
-  document.getElementById('t-end').value  =dateToInput(end);
-}
+    function normalizeCallsign(raw) {
+      if (!raw) return "";
+      return String(raw).trim().replace(/\s+/g, "");
+    }
 
-function setRange(btn,h){
-  activeH=h;
-  document.querySelectorAll('.btn-h').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  const sv=document.getElementById('t-start').value;
-  if(sv){
-    const s=timeToDate(sv);
-    document.getElementById('t-end').value=dateToInput(new Date(s.getTime()+h*3600000));
-  }
-  fetchData();
-}
+    function isEasyJetFlight(callsign) {
+      return EZY_RE.test(callsign || "");
+    }
 
-document.getElementById('t-start').addEventListener('change',()=>{
-  const sv=document.getElementById('t-start').value;
-  if(sv){
-    const s=timeToDate(sv);
-    document.getElementById('t-end').value=dateToInput(new Date(s.getTime()+activeH*3600000));
-  }
-  fetchData();
-});
-document.getElementById('t-end').addEventListener('change', fetchData);
-function doRefresh(){ fetchData(); }
+    function flightStatus(f) {
+      const now = Date.now() / 1000;
+      if (f.estArrivalAirport && f.estDepartureAirport && f.lastSeen) {
+        return now < (f.lastSeen + 1800) ? "EN RUTA" : "FINALIZADO";
+      }
+      if (f.arrival && f.arrivalTime && now < f.arrivalTime + 1800) return "EN RUTA";
+      return "FINALIZADO";
+    }
 
-// ── Reloj ─────────────────────────────────────────────────────────
-setInterval(()=>{ document.getElementById('clock').textContent=fmt3(new Date()); }, 1000);
+    function flightCard(f, kind) {
+      const code = normalizeCallsign(f.callsign || f[1] || "");
+      const origin = airportLabel(f.estDepartureAirport || f.origin || f.departureAirport || f[4] || "");
+      const dest = airportLabel(f.estArrivalAirport || f.destination || f.arrivalAirport || f[5] || "");
+      const sched = f.scheduleTime || f.departureTime || f.arrivalTime || f.lastSeen || f.time_position || 0;
+      const status = flightStatus(f);
+      const badge = status === "EN RUTA"
+        ? "bg-amber-100 text-amber-800"
+        : "bg-gray-200 text-gray-700";
 
-// ── Init ──────────────────────────────────────────────────────────
-initTimes();
-document.getElementById('clock').textContent=fmt3(new Date());
-fetchData();
-setInterval(fetchData, 90000);
-</script>
+      return `
+        <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-sm font-bold text-easy-orange">${code || "EZY/EJU"}</div>
+              <div class="mt-1 text-sm text-gray-700">${origin} ➔ ${dest}</div>
+              <div class="mt-1 text-xs text-gray-500">Programada: ${sched ? timeStr(sched) : "—"}</div>
+            </div>
+            <span class="shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${badge}">
+              ${status}
+            </span>
+          </div>
+        </div>
+      `;
+    }
 
+    function renderList(el, items, kind) {
+      if (!items.length) {
+        el.innerHTML = `
+          <div class="rounded-xl border border-dashed border-gray-300 p-4 text-sm text-gray-500">
+            Sin vuelos para este rango.
+          </div>
+        `;
+        return;
+      }
+      el.innerHTML = items.map(f => flightCard(f, kind)).join("");
+    }
+
+    async function apiFetch(path) {
+      const url = `${WORKER_URL}?url=${encodeURIComponent(path)}`;
+      const res = await fetch(url, { mode: "cors" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    }
+
+    async function loadFlights() {
+      $("statusLine").textContent = "Cargando...";
+      const date = $("opDate").value;
+      const start = dateTimeToUnix(date, $("startHour").value);
+      const end = dateTimeToUnix(date, $("endHour").value);
+
+      const arrivalsUrl = `https://opensky-network.org/api/flights/arrival?airport=${AGP}&begin=${start}&end=${end}`;
+      const departuresUrl = `https://opensky-network.org/api/flights/departure?airport=${AGP}&begin=${start}&end=${end}`;
+
+      const [arrivalsRaw, departuresRaw] = await Promise.allSettled([
+        apiFetch(arrivalsUrl),
+        apiFetch(departuresUrl)
+      ]);
+
+      const arrivals = arrivalsRaw.status === "fulfilled" ? (arrivalsRaw.value || []) : [];
+      const departures = departuresRaw.status === "fulfilled" ? (departuresRaw.value || []) : [];
+
+      const filteredArrivals = arrivals.filter(f => isEasyJetFlight(normalizeCallsign(f.callsign || "")) || isEasyJetFlight(f.callsign || f[1] || ""));
+      const filteredDepartures = departures.filter(f => isEasyJetFlight(normalizeCallsign(f.callsign || "")) || isEasyJetFlight(f.callsign || f[1] || ""));
+
+      renderList($("arrivals"), filteredArrivals, "arrival");
+      renderList($("departures"), filteredDepartures, "departure");
+      $("lastUpdate").textContent = `Actualizado: ${new Date().toLocaleTimeString("es-ES")}`;
+      $("statusLine").textContent = "Listo";
+    }
+
+    $("refreshBtn").addEventListener("click", () => loadFlights().catch(err => {
+      $("statusLine").textContent = "Error";
+      $("arrivals").innerHTML = `<div class="text-sm text-red-600">Error cargando llegadas: ${err.message}</div>`;
+      $("departures").innerHTML = `<div class="text-sm text-red-600">Error cargando salidas: ${err.message}</div>`;
+    }));
+
+    ["opDate", "startHour", "endHour"].forEach(id => {
+      $(id).addEventListener("change", () => {});
+    });
+
+    setDefaultFilters();
+    loadFlights().catch(err => {
+      $("statusLine").textContent = "Error";
+      $("arrivals").innerHTML = `<div class="text-sm text-red-600">Error inicial: ${err.message}</div>`;
+      $("departures").innerHTML = `<div class="text-sm text-red-600">Error inicial: ${err.message}</div>`;
+    });
+  </script>
 </body>
 </html>
