@@ -21,7 +21,7 @@
   --sans: 'IBM Plex Sans Condensed', 'Arial Narrow', Arial, sans-serif;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html,body { height: 100%; }
+html, body { height: 100%; }
 
 body {
   font-family: var(--sans);
@@ -82,7 +82,8 @@ input[type="time"] {
   border-radius: 2px; outline: none; cursor: pointer;
 }
 input[type="time"]:focus {
-  border-color: rgba(255,255,255,.8); background: rgba(0,0,0,.3);
+  border-color: rgba(255,255,255,.8);
+  background: rgba(0,0,0,.3);
 }
 input[type="time"]::-webkit-calendar-picker-indicator {
   filter: invert(1); opacity: .55; cursor: pointer;
@@ -103,12 +104,12 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   display: flex; align-items: center;
   justify-content: space-between;
   font-family: var(--mono); font-size: 10px;
-  letter-spacing: .3px; opacity: .8;
+  letter-spacing: .3px; opacity: .85;
 }
 #refresh-btn {
   background: transparent; border: none; color: #fff;
   cursor: pointer; font-family: var(--mono); font-size: 10px;
-  text-decoration: underline; padding: 0; letter-spacing: .3px;
+  text-decoration: underline; padding: 0;
 }
 
 /* ── NOTICES ── */
@@ -120,9 +121,11 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .notice-cache { background:#d1ecf1; color:#0c5460; border-color:#bee5eb; }
 .notice-live  { background:#d4edda; color:#155724; border-color:#c3e6cb; }
 
-/* ── MAIN ── */
+/* ── GRID ── */
 #main {
-  flex: 1; display: grid; grid-template-columns: 1fr 1fr;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
 .col { background: var(--white); overflow: hidden; }
 .col:first-child { border-right: 2px solid var(--g6); }
@@ -130,7 +133,8 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .col-header {
   display: flex; align-items: center;
   justify-content: space-between;
-  padding: 7px 14px; background: var(--g1); color: #fff;
+  padding: 7px 14px;
+  background: var(--g1); color: #fff;
   border-bottom: 2px solid var(--orange);
 }
 .col-title {
@@ -161,9 +165,9 @@ tbody td {
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   vertical-align: middle;
 }
-.td-num   { font-family:var(--mono); font-weight:700; font-size:13px; color:var(--black); letter-spacing:1px; }
-.td-time  { font-family:var(--mono); font-weight:600; font-size:14px; color:var(--orange-dk); letter-spacing:1px; }
-.td-route { color:var(--g3); font-size:12px; max-width:160px; }
+.td-num  { font-family:var(--mono); font-weight:700; font-size:13px; color:var(--black); letter-spacing:1px; }
+.td-time { font-family:var(--mono); font-weight:600; font-size:14px; color:var(--orange-dk); letter-spacing:1px; }
+.td-route{ color:var(--g3); font-size:12px; max-width:150px; }
 
 .badge {
   display: inline-block; font-family: var(--mono);
@@ -171,6 +175,7 @@ tbody td {
   padding: 1px 5px; border-radius: 2px; text-transform: uppercase;
 }
 .badge-live   { background:#d4edda; color:#155724; }
+.badge-desc   { background:#fff3cd; color:#856404; }
 .badge-ground { background:#d1ecf1; color:#0c5460; }
 .badge-hist   { background:var(--g7); color:var(--g4); }
 
@@ -182,10 +187,10 @@ tbody td {
 .msg-err { color: #cc2200; }
 
 .dots::after {
-  content: ''; animation: ld 1.2s steps(3,end) infinite;
+  content:''; animation: ld 1.2s steps(3,end) infinite;
 }
 @keyframes ld {
-  0%{content:'';} 33%{content:'.';} 66%{content:'..';} 100%{content:'...';}
+  0%{content:'';}33%{content:'.';}66%{content:'..';}100%{content:'...';}
 }
 
 /* ── FOOTER ── */
@@ -199,7 +204,7 @@ tbody td {
 @media (max-width: 640px) {
   #clock { font-size: 20px; } #logo { font-size: 16px; }
   #main  { grid-template-columns: 1fr; }
-  .col:first-child { border-right: none; border-bottom: 3px solid var(--orange); }
+  .col:first-child { border-right:none; border-bottom:3px solid var(--orange); }
   .td-route { max-width: 100px; }
 }
 </style>
@@ -230,8 +235,8 @@ tbody td {
 </div>
 
 <div id="n-future" class="notice notice-warn">⚠ Franja con tiempo futuro — solo se muestran vuelos ya registrados.</div>
-<div id="n-cache"  class="notice notice-cache">📦 Datos cacheados — OpenSky respondió 429 (límite alcanzado). Se reintentará en 3 min.</div>
-<div id="n-live"   class="notice notice-live">🛰 Modo en vivo (adsb.lol) — aeronaves detectadas en este momento en radio 40NM de AGP.</div>
+<div id="n-cache"  class="notice notice-cache">📦 Datos cacheados (OpenSky 429) — reintentando en 3 min.</div>
+<div id="n-live"   class="notice notice-live">🛰 Modo en vivo — posiciones actuales en radio 60NM de AGP (OpenSky states).</div>
 
 <div id="main">
   <div class="col">
@@ -240,7 +245,9 @@ tbody td {
       <span class="col-count" id="cnt-arr">—</span>
     </div>
     <table>
-      <thead><tr><th>Vuelo</th><th>Origen</th><th>Hora</th><th>Estado</th></tr></thead>
+      <thead><tr>
+        <th>Vuelo</th><th>Origen</th><th>Hora</th><th>Estado</th>
+      </tr></thead>
       <tbody id="tb-arr">
         <tr><td colspan="4" class="msg-cell"><span class="dots">Cargando</span></td></tr>
       </tbody>
@@ -253,7 +260,9 @@ tbody td {
       <span class="col-count" id="cnt-dep">—</span>
     </div>
     <table>
-      <thead><tr><th>Vuelo</th><th>Destino</th><th>Hora</th><th>Estado</th></tr></thead>
+      <thead><tr>
+        <th>Vuelo</th><th>Destino</th><th>Hora</th><th>Estado</th>
+      </tr></thead>
       <tbody id="tb-dep">
         <tr><td colspan="4" class="msg-cell"><span class="dots">Cargando</span></td></tr>
       </tbody>
@@ -262,212 +271,234 @@ tbody td {
 </div>
 
 <div id="footer">
-  <span>FUENTES: OPENSKY-NETWORK.ORG (HISTÓRICO) · ADSB.LOL (EN VIVO)</span>
+  <span>FUENTE: OPENSKY-NETWORK.ORG · HISTÓRICO + EN VIVO (STATES)</span>
   <span id="ft-src">AUTO-REFRESH 90s · CACHÉ 5min</span>
 </div>
 
 <script>
 'use strict';
 
-// ── Constantes ──────────────────────────────────────────────
+// ── Constantes ──────────────────────────────────────────────────
 const TZ        = 'Europe/Madrid';
 const ICAO_AGP  = 'LEMG';
 const AGP_LAT   = 36.6749;
 const AGP_LON   = -4.4991;
 const CACHE_TTL = 5 * 60 * 1000;
 const RETRY_MS  = 3 * 60 * 1000;
-const EZY_PFX   = ['EZY','EJU','EZS','EZT'];
 
-const isEZY = cs => cs && EZY_PFX.some(p => cs.trim().toUpperCase().startsWith(p));
+// Bounding box ~60NM alrededor de AGP para states/all
+const BBOX = { lamin:36.0, lamax:37.4, lomin:-5.6, lomax:-3.4 };
 
-// ── Mapa aeropuertos ─────────────────────────────────────────
+const EZY_PFX = ['EZY','EJU','EZS','EZT'];
+const isEZY   = cs => cs && EZY_PFX.some(p => cs.trim().toUpperCase().startsWith(p));
+
+// ── Mapa aeropuertos ─────────────────────────────────────────────
 const AP = {
-  EGLL:'Londres Heathrow',EGKK:'Londres Gatwick',EGSS:'Londres Stansted',
-  EGGW:'Londres Luton',EGLC:'Londres City',EGNX:'East Midlands',
-  EGPF:'Glasgow',EGPH:'Edimburgo',EGCC:'Mánchester',EGBB:'Birmingham',
-  EGGD:'Bristol',EGHI:'Southampton',EGNM:'Leeds Bradford',EGNT:'Newcastle',
-  EGAC:'Belfast City',EGAA:'Belfast Intl',EGPE:'Inverness',EGPD:'Aberdeen',
-  LFPG:'París CDG',LFPO:'París Orly',LFMN:'Niza',LFLL:'Lyon',
-  LFBO:'Toulouse',LFRS:'Nantes',LFBD:'Burdeos',LFMT:'Montpellier',
-  LFKJ:'Ajaccio',LSGG:'Ginebra',LSZH:'Zúrich',LFSB:'Basilea',
-  EDDM:'Múnich',EDDF:'Fráncfort',EDDB:'Berlín',EDDL:'Düsseldorf',
-  EDDS:'Stuttgart',EDDH:'Hamburgo',EDDK:'Colonia',
-  EHAM:'Ámsterdam',EHRD:'Róterdam',EBBR:'Bruselas',
-  LIRF:'Roma Fiumicino',LIMC:'Milán Malpensa',LIME:'Bérgamo',
-  LIPZ:'Venecia',LIRQ:'Florencia',LICC:'Catania',LICJ:'Palermo',
-  LIEA:'Alghero',LIEE:'Cagliari',LIRA:'Roma Ciampino',LIRP:'Pisa',LIBD:'Bari',
-  LEMD:'Madrid',LEBL:'Barcelona',LEMG:'Málaga',LEVC:'Valencia',
-  LEAL:'Alicante',LEVX:'Vigo',LEZL:'Sevilla',LEBB:'Bilbao',
-  LEGE:'Girona',LEPA:'Palma Mallorca',LEIB:'Ibiza',LEMH:'Menorca',
-  GCTS:'Tenerife Sur',GCXO:'Tenerife Norte',GCLP:'Las Palmas GC',
-  GCLA:'La Palma',GCFV:'Fuerteventura',GCRR:'Lanzarote',
-  LEST:'Santiago Compostela',LEAS:'Asturias',LECO:'A Coruña',LEAM:'Almería',
-  LPPT:'Lisboa',LPPR:'Oporto',LPFR:'Faro',LPMA:'Madeira',
-  LOWW:'Viena',LKPR:'Praga',LHBP:'Budapest',EPWA:'Varsovia',EPKK:'Cracovia',
-  EKCH:'Copenhague',ESGG:'Gotemburgo',ESSA:'Estocolmo',ENGM:'Oslo',
-  LGAV:'Atenas',LGIR:'Creta',LGTS:'Tesalónica',LGRP:'Rodas',
-  LGKR:'Corfú',LGZA:'Zakynthos',LGMK:'Mikonos',LGSR:'Santorini',
-  LCLK:'Lárnaca',LCPH:'Pafos',LLBG:'Tel Aviv',
-  GMMN:'Casablanca',GMAD:'Agadir',GMMX:'Marrakech',
-  LTAI:'Antalya',LTBS:'Dalaman',LTFE:'Bodrum',LTFM:'Estambul',
-  LDDU:'Dubrovnik',LDSP:'Split',LBBO:'Burgas',LBWN:'Varna',
+  EGLL:'Londres Heathrow', EGKK:'Londres Gatwick',  EGSS:'Londres Stansted',
+  EGGW:'Londres Luton',    EGLC:'Londres City',      EGNX:'East Midlands',
+  EGPF:'Glasgow',          EGPH:'Edimburgo',          EGCC:'Mánchester',
+  EGBB:'Birmingham',       EGGD:'Bristol',            EGHI:'Southampton',
+  EGNM:'Leeds Bradford',   EGNT:'Newcastle',          EGAC:'Belfast City',
+  EGAA:'Belfast Intl',     EGPE:'Inverness',          EGPD:'Aberdeen',
+  LFPG:'París CDG',        LFPO:'París Orly',         LFMN:'Niza',
+  LFLL:'Lyon',             LFBO:'Toulouse',           LFRS:'Nantes',
+  LFBD:'Burdeos',          LFMT:'Montpellier',        LFKJ:'Ajaccio',
+  LSGG:'Ginebra',          LSZH:'Zúrich',             LFSB:'Basilea',
+  EDDM:'Múnich',           EDDF:'Fráncfort',          EDDB:'Berlín',
+  EDDL:'Düsseldorf',       EDDS:'Stuttgart',          EDDH:'Hamburgo',
+  EDDK:'Colonia',          EHAM:'Ámsterdam',          EHRD:'Róterdam',
+  EBBR:'Bruselas',
+  LIRF:'Roma Fiumicino',   LIMC:'Milán Malpensa',     LIME:'Bérgamo',
+  LIPZ:'Venecia',          LIRQ:'Florencia',          LICC:'Catania',
+  LICJ:'Palermo',          LIEA:'Alghero',            LIEE:'Cagliari',
+  LIRA:'Roma Ciampino',    LIRP:'Pisa',               LIBD:'Bari',
+  LEMD:'Madrid',           LEBL:'Barcelona',          LEMG:'Málaga AGP',
+  LEVC:'Valencia',         LEAL:'Alicante',           LEVX:'Vigo',
+  LEZL:'Sevilla',          LEBB:'Bilbao',             LEGE:'Girona',
+  LEPA:'Palma Mallorca',   LEIB:'Ibiza',              LEMH:'Menorca',
+  GCTS:'Tenerife Sur',     GCXO:'Tenerife Norte',     GCLP:'Las Palmas GC',
+  GCLA:'La Palma',         GCFV:'Fuerteventura',      GCRR:'Lanzarote',
+  LEST:'Santiago',         LEAS:'Asturias',           LECO:'A Coruña',
+  LEAM:'Almería',          LPPT:'Lisboa',             LPPR:'Oporto',
+  LPFR:'Faro',             LPMA:'Madeira',            LOWW:'Viena',
+  LKPR:'Praga',            LHBP:'Budapest',           EPWA:'Varsovia',
+  EPKK:'Cracovia',         EKCH:'Copenhague',         ESGG:'Gotemburgo',
+  ESSA:'Estocolmo',        ENGM:'Oslo',               LGAV:'Atenas',
+  LGIR:'Creta',            LGTS:'Tesalónica',         LGRP:'Rodas',
+  LGKR:'Corfú',            LGZA:'Zakynthos',          LGMK:'Mikonos',
+  LGSR:'Santorini',        LCLK:'Lárnaca',            LCPH:'Pafos',
+  LLBG:'Tel Aviv',         GMMN:'Casablanca',         GMAD:'Agadir',
+  GMMX:'Marrakech',        LTAI:'Antalya',            LTBS:'Dalaman',
+  LTFE:'Bodrum',           LTFM:'Estambul',           LDDU:'Dubrovnik',
+  LDSP:'Split',            LBBO:'Burgas',             LBWN:'Varna',
 };
 const apName = icao => {
   if (!icao) return '—';
-  const k = icao.trim().toUpperCase();
-  return AP[k] || k;
+  return AP[icao.trim().toUpperCase()] || icao.trim().toUpperCase();
 };
 
-// ── Tiempo ───────────────────────────────────────────────────
-const fmtHHMMSS = d => d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false,timeZone:TZ});
-const fmtHHMM   = d => d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ});
+// ── Tiempo ─────────────────────────────────────────────────────
+const fmt3 = d => d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false,timeZone:TZ});
+const fmt2  = d => d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ});
 
-function timeToDate(s) {
-  const [h,m] = s.split(':').map(Number);
-  const d = new Date(); d.setHours(h,m,0,0); return d;
+function timeToDate(s){
+  const [h,m]=s.split(':').map(Number);
+  const d=new Date(); d.setHours(h,m,0,0); return d;
 }
-function dateToInput(d) {
-  const s = d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ});
-  const parts = s.split(':');
-  return parts[0].padStart(2,'0') + ':' + parts[1].padStart(2,'0');
+function dateToInput(d){
+  const s=d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ});
+  const p=s.split(':');
+  return p[0].padStart(2,'0')+':'+p[1].padStart(2,'0');
 }
-const floorHour = d => { const r=new Date(d); r.setMinutes(0,0,0); return r; };
-const toUnix    = d => Math.floor(d.getTime()/1000);
-const fromUnix  = u => new Date(u*1000);
+const floorHour = d=>{ const r=new Date(d); r.setMinutes(0,0,0); return r; };
+const toUnix    = d=>Math.floor(d.getTime()/1000);
+const fromUnix  = u=>new Date(u*1000);
 
-// ── Estado ───────────────────────────────────────────────────
-let activeH = 2;
-let last429 = 0;
+// ── Estado global ───────────────────────────────────────────────
+let activeH  = 2;
+let last429  = 0;
 let fetching = false;
 
-// ── Caché localStorage ───────────────────────────────────────
-function cacheSet(key, data) {
-  try { localStorage.setItem(key, JSON.stringify({ts:Date.now(), data})); } catch(_){}
+// ── Caché (localStorage) ─────────────────────────────────────────
+function cSet(k,v){ try{ localStorage.setItem(k,JSON.stringify({ts:Date.now(),v})); }catch(_){} }
+function cGet(k,ttl){
+  try{
+    const r=localStorage.getItem(k); if(!r)return null;
+    const o=JSON.parse(r);
+    if(Date.now()-o.ts>ttl)return null;
+    return o.v;
+  }catch(_){return null;}
 }
-function cacheGet(key, maxAge) {
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return null;
-    const obj = JSON.parse(raw);
-    if (Date.now() - obj.ts > maxAge) return null;
-    return obj.data;
-  } catch(_){ return null; }
-}
-function cacheGetStale(key) {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw).data : null;
-  } catch(_){ return null; }
+function cStale(k){
+  try{ const r=localStorage.getItem(k); return r?JSON.parse(r).v:null; }catch(_){return null;}
 }
 
-// ── Fetch seguro con caché ───────────────────────────────────
-async function safeFetch(url, ckey) {
-  const fresh = cacheGet(ckey, CACHE_TTL);
-  if (fresh) return {data:fresh, source:'cache'};
+// ── fetchTimeout: reemplaza AbortSignal.timeout (mejor compatibilidad) ──
+function fetchTimeout(url, ms){
+  return new Promise((res,rej)=>{
+    const t = setTimeout(()=>rej(new Error('Timeout')), ms);
+    fetch(url)
+      .then(r=>{ clearTimeout(t); res(r); })
+      .catch(e=>{ clearTimeout(t); rej(e); });
+  });
+}
 
-  const r = await fetch(url, {signal:AbortSignal.timeout(12000)});
+// ── safeFetch con caché + 429 ─────────────────────────────────────
+async function safeFetch(url, ckey){
+  const fresh = cGet(ckey, CACHE_TTL);
+  if(fresh) return {data:fresh, src:'cache'};
 
-  if (r.status === 404) return {data:[], source:'ok'};
+  const r = await fetchTimeout(url, 12000);
 
-  if (r.status === 429) {
-    last429 = Date.now();
-    const stale = cacheGetStale(ckey);
-    if (stale) return {data:stale, source:'stale'};
+  if(r.status===404) return {data:[], src:'ok'};
+
+  if(r.status===429){
+    last429=Date.now();
+    const stale=cStale(ckey);
+    if(stale) return {data:stale, src:'stale'};
     throw new Error('429_noCache');
   }
 
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  if(!r.ok) throw new Error(`HTTP ${r.status}`);
 
-  const data = (await r.json()) || [];
-  cacheSet(ckey, data);
-  return {data, source:'ok'};
+  const data=(await r.json())||[];
+  cSet(ckey,data);
+  return {data, src:'ok'};
 }
 
-// ── OpenSky ──────────────────────────────────────────────────
-async function fetchOpenSky(begin, fin) {
-  const BASE = 'https://opensky-network.org/api/flights';
-  const [ra, rd] = await Promise.all([
-    safeFetch(`${BASE}/arrival?airport=${ICAO_AGP}&begin=${begin}&end=${fin}`,
-              `osk_arr_${begin}_${fin}`),
-    safeFetch(`${BASE}/departure?airport=${ICAO_AGP}&begin=${begin}&end=${fin}`,
-              `osk_dep_${begin}_${fin}`)
+// ── OpenSky: historial llegadas/salidas ───────────────────────────
+async function fetchHistory(begin, fin){
+  const B='https://opensky-network.org/api/flights';
+  const [ra,rd]=await Promise.all([
+    safeFetch(`${B}/arrival?airport=${ICAO_AGP}&begin=${begin}&end=${fin}`,
+              `osk_a_${begin}_${fin}`),
+    safeFetch(`${B}/departure?airport=${ICAO_AGP}&begin=${begin}&end=${fin}`,
+              `osk_d_${begin}_${fin}`)
   ]);
-
-  const arr = ra.data.filter(f=>isEZY(f.callsign));
-  const dep = rd.data.filter(f=>isEZY(f.callsign));
+  const arr=ra.data.filter(f=>isEZY(f.callsign));
+  const dep=rd.data.filter(f=>isEZY(f.callsign));
   arr.sort((a,b)=>(a.lastSeen||0)-(b.lastSeen||0));
   dep.sort((a,b)=>(a.firstSeen||0)-(b.firstSeen||0));
-
-  const isCache = ra.source!=='ok' || rd.source!=='ok';
-  const isStale = ra.source==='stale' || rd.source==='stale';
-  return {arr, dep, isCache, isStale};
+  return {arr, dep,
+    isCache: ra.src!=='ok'||rd.src!=='ok',
+    isStale: ra.src==='stale'||rd.src==='stale'};
 }
 
-// ── adsb.lol (live) ──────────────────────────────────────────
-function bearing(lat1,lon1,lat2,lon2) {
-  const dL = (lon2-lon1)*Math.PI/180;
-  const l1 = lat1*Math.PI/180, l2=lat2*Math.PI/180;
-  const y  = Math.sin(dL)*Math.cos(l2);
-  const x  = Math.cos(l1)*Math.sin(l2)-Math.sin(l1)*Math.cos(l2)*Math.cos(dL);
+// ── OpenSky: posiciones actuales (states/all) ─────────────────────
+// Formato estado: [icao24, callsign, origin_country, time_pos, last_contact,
+//   lon(5), lat(6), baro_alt(7), on_ground(8), velocity(9), track(10), vert_rate(11),
+//   sensors, geo_alt, squawk, spi, pos_src]
+function bearing(la1,lo1,la2,lo2){
+  const dL=(lo2-lo1)*Math.PI/180;
+  const l1=la1*Math.PI/180, l2=la2*Math.PI/180;
+  const y=Math.sin(dL)*Math.cos(l2);
+  const x=Math.cos(l1)*Math.sin(l2)-Math.sin(l1)*Math.cos(l2)*Math.cos(dL);
   return (Math.atan2(y,x)*180/Math.PI+360)%360;
 }
 function normA(a){ a=a%360; if(a>180)a-=360; if(a<-180)a+=360; return a; }
 
-async function fetchLive() {
-  const url  = `https://api.adsb.lol/v2/lat/${AGP_LAT}/lon/${AGP_LON}/dist/40`;
-  const ckey = 'adsb_live';
+async function fetchLive(){
+  const url=`https://opensky-network.org/api/states/all`
+           +`?lamin=${BBOX.lamin}&lomin=${BBOX.lomin}`
+           +`&lamax=${BBOX.lamax}&lomax=${BBOX.lomax}`;
+  const ckey='osk_states';
 
-  let data = cacheGet(ckey, 30000);
-  if (!data) {
-    const r = await fetch(url, {signal:AbortSignal.timeout(8000)});
-    if (!r.ok) throw new Error(`adsb.lol HTTP ${r.status}`);
-    const json = await r.json();
-    data = json.ac || [];
-    cacheSet(ckey, data);
+  // Caché corta para live: 20 segundos
+  let data = cGet(ckey, 20000);
+  if(!data){
+    const r=await fetchTimeout(url, 12000);
+    if(r.status===429){ last429=Date.now(); throw new Error('429 en states/all'); }
+    if(!r.ok) throw new Error(`States HTTP ${r.status}`);
+    const json=await r.json();
+    data=json.states||[];
+    cSet(ckey,data);
   }
 
-  const ezy = data.filter(f=>isEZY(f.flight));
+  const ezy=data.filter(s=>isEZY(s[1]));
   const arr=[], dep=[];
-  const nowStr = fmtHHMM(new Date());
+  const nowStr=fmt2(new Date());
 
-  for (const f of ezy) {
-    const cs    = (f.flight||'').trim().toUpperCase();
-    const onGnd = f.on_ground===1||f.on_ground===true;
-    const track = f.track||0;
-    const lat   = f.lat||0, lon=f.lon||0;
+  for(const s of ezy){
+    const cs    = (s[1]||'').trim().toUpperCase();
+    const lon   = s[5]||0;
+    const lat   = s[6]||0;
+    const onGnd = s[8]===true||s[8]===1;
+    const track = s[10]||0;
 
-    const bear = bearing(lat,lon,AGP_LAT,AGP_LON);
-    const diff = Math.abs(normA(bear-track));
+    const bear=bearing(lat,lon,AGP_LAT,AGP_LON);
+    const diff=Math.abs(normA(bear-track));
 
-    const entry = {_live:true, callsign:cs, nowStr, _gnd:onGnd,
-                   orig:f.origin||null, dest:f.dest||null};
-
-    if (onGnd)         arr.push(entry);
-    else if (diff<60)  arr.push(entry);
-    else               dep.push(entry);
+    const entry={_live:true, callsign:cs, nowStr, _gnd:onGnd};
+    // En tierra cerca de AGP → llegada (acaba de aterrizar)
+    if(onGnd)        arr.push(entry);
+    else if(diff<70) arr.push({...entry, _desc:'acercándose'});
+    else             dep.push({...entry, _desc:'alejándose'});
   }
+
   return {arr, dep};
 }
 
-// ── Render ───────────────────────────────────────────────────
-function renderArr(flights, isLive) {
-  const tb = document.getElementById('tb-arr');
-  document.getElementById('cnt-arr').textContent = flights.length||'0';
-  if (!flights.length) {
+// ── Render llegadas ───────────────────────────────────────────────
+function renderArr(flights, isLive){
+  const tb=document.getElementById('tb-arr');
+  document.getElementById('cnt-arr').textContent=flights.length||'0';
+  if(!flights.length){
     tb.innerHTML=`<tr><td colspan="4" class="msg-cell">${
-      isLive?'Ninguna aeronave EasyJet detectada':'Sin llegadas EasyJet en esta franja'
+      isLive?'Sin aeronaves EasyJet en el área ahora':'Sin llegadas EasyJet en esta franja'
     }</td></tr>`;
     return;
   }
-  tb.innerHTML = flights.map(f => {
+  tb.innerHTML=flights.map(f=>{
     let num,orig,hora,badge;
-    if (f._live) {
-      num=f.callsign||'—'; orig=apName(f.orig); hora=f.nowStr;
-      badge=f._gnd?`<span class="badge badge-ground">EN PISTA</span>`
-                  :`<span class="badge badge-live">EN VUELO</span>`;
+    if(f._live){
+      num=f.callsign||'—'; orig='—'; hora=f.nowStr;
+      badge=f._gnd
+        ?`<span class="badge badge-ground">EN PISTA</span>`
+        :`<span class="badge badge-live">▼ LLEGANDO</span>`;
     } else {
-      num=(f.callsign||'').trim(); orig=apName(f.estDepartureAirport);
-      hora=f.lastSeen?fmtHHMM(fromUnix(f.lastSeen)):'—:—';
+      num=(f.callsign||'').trim();
+      orig=apName(f.estDepartureAirport);
+      hora=f.lastSeen?fmt2(fromUnix(f.lastSeen)):'—:—';
       badge=`<span class="badge badge-hist">HIST</span>`;
     }
     return `<tr>
@@ -479,24 +510,27 @@ function renderArr(flights, isLive) {
   }).join('');
 }
 
-function renderDep(flights, isLive) {
-  const tb = document.getElementById('tb-dep');
-  document.getElementById('cnt-dep').textContent = flights.length||'0';
-  if (!flights.length) {
+// ── Render salidas ────────────────────────────────────────────────
+function renderDep(flights, isLive){
+  const tb=document.getElementById('tb-dep');
+  document.getElementById('cnt-dep').textContent=flights.length||'0';
+  if(!flights.length){
     tb.innerHTML=`<tr><td colspan="4" class="msg-cell">${
-      isLive?'Ninguna aeronave EasyJet detectada':'Sin salidas EasyJet en esta franja'
+      isLive?'Sin aeronaves EasyJet en el área ahora':'Sin salidas EasyJet en esta franja'
     }</td></tr>`;
     return;
   }
-  tb.innerHTML = flights.map(f => {
+  tb.innerHTML=flights.map(f=>{
     let num,dest,hora,badge;
-    if (f._live) {
-      num=f.callsign||'—'; dest=apName(f.dest); hora=f.nowStr;
-      badge=f._gnd?`<span class="badge badge-ground">EN PISTA</span>`
-                  :`<span class="badge badge-live">EN VUELO</span>`;
+    if(f._live){
+      num=f.callsign||'—'; dest='—'; hora=f.nowStr;
+      badge=f._gnd
+        ?`<span class="badge badge-ground">EN PISTA</span>`
+        :`<span class="badge badge-desc">▲ SALIENDO</span>`;
     } else {
-      num=(f.callsign||'').trim(); dest=apName(f.estArrivalAirport);
-      hora=f.firstSeen?fmtHHMM(fromUnix(f.firstSeen)):'—:—';
+      num=(f.callsign||'').trim();
+      dest=apName(f.estArrivalAirport);
+      hora=f.firstSeen?fmt2(fromUnix(f.firstSeen)):'—:—';
       badge=`<span class="badge badge-hist">HIST</span>`;
     }
     return `<tr>
@@ -508,113 +542,110 @@ function renderDep(flights, isLive) {
   }).join('');
 }
 
-// ── UI helpers ───────────────────────────────────────────────
-const show = (id, v) => document.getElementById(id).style.display = v?'block':'none';
-const setStatus = msg => document.getElementById('st-msg').textContent = msg;
+// ── UI helpers ────────────────────────────────────────────────────
+const show=  (id,v)=>document.getElementById(id).style.display=v?'block':'none';
+const setSt= msg=>document.getElementById('st-msg').textContent=msg;
 
-function setLoading() {
+function setLoading(){
   const h=`<tr><td colspan="4" class="msg-cell"><span class="dots">Cargando</span></td></tr>`;
-  document.getElementById('tb-arr').innerHTML=h;
-  document.getElementById('tb-dep').innerHTML=h;
-  document.getElementById('cnt-arr').textContent='…';
-  document.getElementById('cnt-dep').textContent='…';
-  setStatus('Consultando…');
+  ['tb-arr','tb-dep'].forEach(id=>document.getElementById(id).innerHTML=h);
+  ['cnt-arr','cnt-dep'].forEach(id=>document.getElementById(id).textContent='…');
+  setSt('Consultando…');
 }
-function showError(msg) {
+function showErr(msg){
   const h=`<tr><td colspan="4" class="msg-cell msg-err">⚠ ${msg}</td></tr>`;
-  document.getElementById('tb-arr').innerHTML=h;
-  document.getElementById('tb-dep').innerHTML=h;
-  document.getElementById('cnt-arr').textContent='!';
-  document.getElementById('cnt-dep').textContent='!';
-  setStatus(`Error: ${msg}`);
+  ['tb-arr','tb-dep'].forEach(id=>document.getElementById(id).innerHTML=h);
+  ['cnt-arr','cnt-dep'].forEach(id=>document.getElementById(id).textContent='!');
+  setSt(`Error: ${msg}`);
 }
 
-// ── Fallback live ─────────────────────────────────────────────
-async function tryLive() {
+// ── Live fallback ─────────────────────────────────────────────────
+async function tryLive(){
   setLoading();
-  try {
-    const {arr,dep} = await fetchLive();
+  try{
+    const {arr,dep}=await fetchLive();
     show('n-live',true); show('n-cache',false);
     renderArr(arr,true); renderDep(dep,true);
-    setStatus(`En vivo · ${arr.length+dep.length} aeronave(s) · ${fmtHHMMSS(new Date())}`);
-    document.getElementById('ft-src').textContent='FUENTE: ADSB.LOL · EN VIVO · RADIO 40NM';
-  } catch(e) {
-    showError(`Live: ${e.message}`);
+    setSt(`En vivo · ${arr.length+dep.length} aeronave(s) · ${fmt3(new Date())}`);
+    document.getElementById('ft-src').textContent='FUENTE: OPENSKY STATES · EN VIVO · BBOX 60NM';
+  } catch(e){
+    showErr(`Live: ${e.message}`);
   }
 }
 
-// ── Fetch principal ───────────────────────────────────────────
-async function fetchData() {
-  if (fetching) return;
-  fetching = true;
+// ── Fetch principal ───────────────────────────────────────────────
+async function fetchData(){
+  if(fetching) return;
+  fetching=true;
 
-  const sv = document.getElementById('t-start').value;
-  const ev = document.getElementById('t-end').value;
-  if (!sv||!ev) { fetching=false; return; }
+  const sv=document.getElementById('t-start').value;
+  const ev=document.getElementById('t-end').value;
+  if(!sv||!ev){ fetching=false; return; }
 
-  const now   = new Date();
-  let start   = timeToDate(sv);
-  let end     = timeToDate(ev);
-  if (end<=start) end.setDate(end.getDate()+1);
+  const now=new Date();
+  let start=timeToDate(sv);
+  let end  =timeToDate(ev);
+  if(end<=start) end.setDate(end.getDate()+1);
 
   show('n-future', end>now);
   show('n-cache',  false);
   show('n-live',   false);
 
-  if (start > now) {
-    setStatus('Franja futura — modo en vivo…');
+  // Franja completamente futura → modo live
+  if(start>now){
+    setSt('Franja futura — activando modo en vivo…');
     await tryLive(); fetching=false; return;
   }
 
   setLoading();
 
-  try {
-    if (Date.now()-last429 < RETRY_MS) {
+  try{
+    // Bloqueado por 429 reciente → live directamente
+    if(Date.now()-last429 < RETRY_MS){
       await tryLive(); fetching=false; return;
     }
 
-    const begin = toUnix(start);
-    const fin   = toUnix(new Date(Math.min(end.getTime(),now.getTime())));
-    const {arr,dep,isCache,isStale} = await fetchOpenSky(begin,fin);
+    const begin=toUnix(start);
+    const fin  =toUnix(new Date(Math.min(end.getTime(),now.getTime())));
+    const {arr,dep,isCache,isStale}=await fetchHistory(begin,fin);
 
-    if (isStale)      show('n-cache',true);
-    const src = isStale?'Datos cacheados (429)':isCache?'Desde caché':'OpenSky';
-    setStatus(`${arr.length+dep.length} vuelo(s) · ${src} · ${fmtHHMMSS(now)}`);
+    if(isStale) show('n-cache',true);
+    const src=isStale?'Cacheado (429)':isCache?'Caché':'OpenSky';
+    setSt(`${arr.length+dep.length} vuelo(s) · ${src} · ${fmt3(now)}`);
     renderArr(arr,false); renderDep(dep,false);
     document.getElementById('ft-src').textContent='FUENTE: OPENSKY-NETWORK.ORG · HISTÓRICO';
 
-  } catch(e) {
-    if (e.message==='429_noCache') { await tryLive(); }
-    else                           { showError(e.message); }
+  } catch(e){
+    if(e.message==='429_noCache') await tryLive();
+    else showErr(e.message);
   }
 
-  fetching = false;
+  fetching=false;
 }
 
-// ── Controles ─────────────────────────────────────────────────
-function initTimes() {
-  const now   = new Date();
-  const start = floorHour(now);
-  const end   = new Date(start.getTime()+activeH*3600000);
-  document.getElementById('t-start').value = dateToInput(start);
-  document.getElementById('t-end').value   = dateToInput(end);
+// ── Controles ─────────────────────────────────────────────────────
+function initTimes(){
+  const now=new Date(), start=floorHour(now);
+  const end=new Date(start.getTime()+activeH*3600000);
+  document.getElementById('t-start').value=dateToInput(start);
+  document.getElementById('t-end').value  =dateToInput(end);
 }
 
-function setRange(btn,h) {
-  activeH = h;
+function setRange(btn,h){
+  activeH=h;
   document.querySelectorAll('.btn-h').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  const sv = document.getElementById('t-start').value;
-  if (sv) {
+  const sv=document.getElementById('t-start').value;
+  if(sv){
     const s=timeToDate(sv);
     document.getElementById('t-end').value=dateToInput(new Date(s.getTime()+h*3600000));
   }
   fetchData();
 }
 
-document.getElementById('t-start').addEventListener('change', () => {
+document.getElementById('t-start').addEventListener('change',()=>{
   const sv=document.getElementById('t-start').value;
-  if (sv) {
+  if(sv){
     const s=timeToDate(sv);
     document.getElementById('t-end').value=dateToInput(new Date(s.getTime()+activeH*3600000));
   }
@@ -623,12 +654,12 @@ document.getElementById('t-start').addEventListener('change', () => {
 document.getElementById('t-end').addEventListener('change', fetchData);
 function doRefresh(){ fetchData(); }
 
-// ── Reloj ─────────────────────────────────────────────────────
-setInterval(()=>{ document.getElementById('clock').textContent=fmtHHMMSS(new Date()); },1000);
+// ── Reloj ─────────────────────────────────────────────────────────
+setInterval(()=>{ document.getElementById('clock').textContent=fmt3(new Date()); }, 1000);
 
-// ── Init ──────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────
 initTimes();
-document.getElementById('clock').textContent = fmtHHMMSS(new Date());
+document.getElementById('clock').textContent=fmt3(new Date());
 fetchData();
 setInterval(fetchData, 90000);
 </script>
