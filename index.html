@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-  <title>AGP EasyJet Monitor</title>
+  <title>EasyJet AGP Live</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -12,8 +12,8 @@
           colors: {
             easy: {
               orange: "#ff6600",
-              light: "#fff7f2",
-              dark: "#e65c00"
+              dark: "#e65c00",
+              light: "#fff7f2"
             }
           }
         }
@@ -28,7 +28,7 @@
         <div class="flex items-center justify-between gap-3">
           <div>
             <h1 class="text-xl font-bold text-easy-orange">EasyJet AGP Live</h1>
-            <p class="text-sm text-gray-500">Monitor de vuelos EZY / EJU en Málaga</p>
+            <p class="text-sm text-gray-500">Vuelos EasyJet en Málaga</p>
           </div>
           <div class="text-right">
             <div id="lastUpdate" class="text-xs text-gray-500">—</div>
@@ -60,7 +60,7 @@
           </div>
         </div>
         <p class="mt-3 text-xs text-gray-500">
-          Al cargar, la hora de inicio se redondea automáticamente a la hora en punto actual.
+          Si no hay resultados, la app ampliará automáticamente la ventana de búsqueda.
         </p>
       </section>
 
@@ -79,34 +79,9 @@
   </div>
 
   <script>
-    // IMPORTANTE: coloca aquí la URL de tu Cloudflare Worker.
-    const WORKER_URL = "https://TU-WORKER.tuusuario.workers.dev";
-    const AGP = "LEMG";
-    const EZY_RE = /\b(EZY|EJU)[A-Z0-9]{1,5}\b/i;
-
-    const AIRPORTS = {
-      LEMG: "Málaga",
-      EGKK: "London Gatwick",
-      LFMN: "Nice",
-      LFPG: "Paris Charles de Gaulle",
-      LFPO: "Paris Orly",
-      LEBL: "Barcelona",
-      LEPA: "Palma de Mallorca",
-      LIRF: "Rome Fiumicino",
-      LOWW: "Vienna",
-      EHAM: "Amsterdam Schiphol",
-      EDDL: "Düsseldorf",
-      EDDM: "Munich",
-      EDDF: "Frankfurt",
-      EIDW: "Dublin",
-      EGLL: "London Heathrow",
-      EGSS: "London Stansted",
-      ESSA: "Stockholm Arlanda",
-      KJFK: "New York JFK",
-      LCLK: "Larnaca",
-      LPPT: "Lisbon",
-      LSZH: "Zurich"
-    };
+    const WORKER_URL = "https://ezy.alex198946.workers.dev/";
+    const AIRPORT = { iata: "AGP", icao: "LEMG", name: "Málaga" };
+    const EASY_RE = /\b(EZY|EJU)[A-Z0-9]{1,5}\b/i;
 
     const $ = (id) => document.getElementById(id);
 
@@ -118,14 +93,19 @@
       return d;
     }
 
-    function setDefaultFilters() {
+    function setDefaults() {
       const now = new Date();
-      const today = new Date(now);
-      $("opDate").value = today.toISOString().slice(0, 10);
-      const rounded = roundNowToHour();
-      $("startHour").value = `${pad(rounded.getHours())}:00`;
-      const end = new Date(rounded.getTime() + 6 * 60 * 60 * 1000);
+      $("opDate").value = now.toISOString().slice(0, 10);
+      const start = roundNowToHour();
+      $("startHour").value = `${pad(start.getHours())}:00`;
+      const end = new Date(start.getTime() + 8 * 60 * 60 * 1000);
       $("endHour").value = `${pad(end.getHours())}:00`;
+    }
+
+    function unixFromInput(dateStr, hm) {
+      const [y, m, d] = dateStr.split("-").map(Number);
+      const [hh, mm] = hm.split(":").map(Number);
+      return Math.floor(new Date(y, m - 1, d, hh, mm, 0, 0).getTime() / 1000);
     }
 
     function timeStr(ts) {
@@ -133,116 +113,101 @@
       return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
     }
 
-    function dateTimeToUnix(dateStr, timeStrVal) {
-      const [y, m, d] = dateStr.split("-").map(Number);
-      const [hh, mm] = timeStrVal.split(":").map(Number);
-      return Math.floor(new Date(y, m - 1, d, hh, mm, 0, 0).getTime() / 1000);
+    function isEasyJet(callsign) {
+      return EASY_RE.test(String(callsign || "").replace(/\s+/g, ""));
     }
 
     function airportLabel(code) {
-      return AIRPORTS[code] || code || "—";
-    }
-
-    function normalizeCallsign(raw) {
-      if (!raw) return "";
-      return String(raw).trim().replace(/\s+/g, "");
-    }
-
-    function isEasyJetFlight(callsign) {
-      return EZY_RE.test(callsign || "");
+      return code || "—";
     }
 
     function flightStatus(f) {
       const now = Date.now() / 1000;
-      if (f.estArrivalAirport && f.estDepartureAirport && f.lastSeen) {
-        return now < (f.lastSeen + 1800) ? "EN RUTA" : "FINALIZADO";
-      }
-      if (f.arrival && f.arrivalTime && now < f.arrivalTime + 1800) return "EN RUTA";
-      return "FINALIZADO";
+      const ts = f.lastSeen || f.arrivalTime || f.departureTime || f.firstSeen || 0;
+      return now <= ts + 3600 ? "EN RUTA" : "FINALIZADO";
     }
 
-    function flightCard(f, kind) {
-      const code = normalizeCallsign(f.callsign || f[1] || "");
-      const origin = airportLabel(f.estDepartureAirport || f.origin || f.departureAirport || f[4] || "");
-      const dest = airportLabel(f.estArrivalAirport || f.destination || f.arrivalAirport || f[5] || "");
-      const sched = f.scheduleTime || f.departureTime || f.arrivalTime || f.lastSeen || f.time_position || 0;
+    function card(f) {
+      const callsign = String(f.callsign || "").replace(/\s+/g, "") || "EZY/EJU";
+      const origin = airportLabel(f.estDepartureAirport || f.departureAirport || "");
+      const dest = airportLabel(f.estArrivalAirport || f.arrivalAirport || "");
+      const sched = f.departureTime || f.arrivalTime || f.firstSeen || f.lastSeen || 0;
       const status = flightStatus(f);
-      const badge = status === "EN RUTA"
-        ? "bg-amber-100 text-amber-800"
-        : "bg-gray-200 text-gray-700";
+      const badge = status === "EN RUTA" ? "bg-amber-100 text-amber-800" : "bg-gray-200 text-gray-700";
 
       return `
         <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
           <div class="flex items-start justify-between gap-3">
             <div>
-              <div class="text-sm font-bold text-easy-orange">${code || "EZY/EJU"}</div>
+              <div class="text-sm font-bold text-easy-orange">${callsign}</div>
               <div class="mt-1 text-sm text-gray-700">${origin} ➔ ${dest}</div>
               <div class="mt-1 text-xs text-gray-500">Programada: ${sched ? timeStr(sched) : "—"}</div>
             </div>
-            <span class="shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${badge}">
-              ${status}
-            </span>
+            <span class="shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${badge}">${status}</span>
           </div>
         </div>
       `;
     }
 
-    function renderList(el, items, kind) {
-      if (!items.length) {
-        el.innerHTML = `
-          <div class="rounded-xl border border-dashed border-gray-300 p-4 text-sm text-gray-500">
-            Sin vuelos para este rango.
-          </div>
-        `;
+    function render(el, flights) {
+      if (!flights.length) {
+        el.innerHTML = `<div class="rounded-xl border border-dashed border-gray-300 p-4 text-sm text-gray-500">Sin vuelos en este rango.</div>`;
         return;
       }
-      el.innerHTML = items.map(f => flightCard(f, kind)).join("");
+      el.innerHTML = flights.map(card).join("");
     }
 
-    async function apiFetch(path) {
-      const url = `${WORKER_URL}?url=${encodeURIComponent(path)}`;
-      const res = await fetch(url, { mode: "cors" });
+    async function workerFetch(url) {
+      const res = await fetch(`${WORKER_URL}?url=${encodeURIComponent(url)}`, { mode: "cors" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return await res.json();
+    }
+
+    async function queryFlights(kind, begin, end) {
+      const url = `https://opensky-network.org/api/flights/${kind}?airport=${AIRPORT.icao}&begin=${begin}&end=${end}`;
+      const data = await workerFetch(url);
+      return Array.isArray(data) ? data.filter(f => isEasyJet(f.callsign)) : [];
     }
 
     async function loadFlights() {
       $("statusLine").textContent = "Cargando...";
       const date = $("opDate").value;
-      const start = dateTimeToUnix(date, $("startHour").value);
-      const end = dateTimeToUnix(date, $("endHour").value);
+      const begin = unixFromInput(date, $("startHour").value);
+      const end = unixFromInput(date, $("endHour").value);
 
-      const arrivalsUrl = `https://opensky-network.org/api/flights/arrival?airport=${AGP}&begin=${start}&end=${end}`;
-      const departuresUrl = `https://opensky-network.org/api/flights/departure?airport=${AGP}&begin=${start}&end=${end}`;
-
-      const [arrivalsRaw, departuresRaw] = await Promise.allSettled([
-        apiFetch(arrivalsUrl),
-        apiFetch(departuresUrl)
+      let [arrivals, departures] = await Promise.all([
+        queryFlights("arrival", begin, end),
+        queryFlights("departure", begin, end)
       ]);
 
-      const arrivals = arrivalsRaw.status === "fulfilled" ? (arrivalsRaw.value || []) : [];
-      const departures = departuresRaw.status === "fulfilled" ? (departuresRaw.value || []) : [];
+      if (arrivals.length === 0 && departures.length === 0) {
+        const extendedBegin = begin - 4 * 3600;
+        const extendedEnd = end + 4 * 3600;
+        const extended = await Promise.all([
+          queryFlights("arrival", extendedBegin, extendedEnd),
+          queryFlights("departure", extendedBegin, extendedEnd)
+        ]);
+        arrivals = extended[0];
+        departures = extended[1];
+        $("statusLine").textContent = "Sin datos en rango; ventana ampliada aplicada";
+      } else {
+        $("statusLine").textContent = "Listo";
+      }
 
-      const filteredArrivals = arrivals.filter(f => isEasyJetFlight(normalizeCallsign(f.callsign || "")) || isEasyJetFlight(f.callsign || f[1] || ""));
-      const filteredDepartures = departures.filter(f => isEasyJetFlight(normalizeCallsign(f.callsign || "")) || isEasyJetFlight(f.callsign || f[1] || ""));
-
-      renderList($("arrivals"), filteredArrivals, "arrival");
-      renderList($("departures"), filteredDepartures, "departure");
+      render($("arrivals"), arrivals);
+      render($("departures"), departures);
       $("lastUpdate").textContent = `Actualizado: ${new Date().toLocaleTimeString("es-ES")}`;
-      $("statusLine").textContent = "Listo";
     }
 
-    $("refreshBtn").addEventListener("click", () => loadFlights().catch(err => {
-      $("statusLine").textContent = "Error";
-      $("arrivals").innerHTML = `<div class="text-sm text-red-600">Error cargando llegadas: ${err.message}</div>`;
-      $("departures").innerHTML = `<div class="text-sm text-red-600">Error cargando salidas: ${err.message}</div>`;
-    }));
-
-    ["opDate", "startHour", "endHour"].forEach(id => {
-      $(id).addEventListener("change", () => {});
+    $("refreshBtn").addEventListener("click", () => {
+      loadFlights().catch(err => {
+        $("statusLine").textContent = "Error";
+        $("arrivals").innerHTML = `<div class="text-sm text-red-600">Error: ${err.message}</div>`;
+        $("departures").innerHTML = `<div class="text-sm text-red-600">Error: ${err.message}</div>`;
+      });
     });
 
-    setDefaultFilters();
+    setDefaults();
     loadFlights().catch(err => {
       $("statusLine").textContent = "Error";
       $("arrivals").innerHTML = `<div class="text-sm text-red-600">Error inicial: ${err.message}</div>`;
