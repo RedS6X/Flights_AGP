@@ -5,899 +5,631 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EasyJet · AGP Málaga</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+
 <style>
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans+Condensed:wght@400;600;700&display=swap');
-
 :root {
-–orange: #FF6600;
-–orange-dk: #cc5200;
-–black: #0a0a0a;
-–gray-1: #1a1a1a;
-–gray-2: #2a2a2a;
-–gray-3: #444;
-–gray-4: #777;
-–gray-5: #aaa;
-–gray-6: #ddd;
-–gray-7: #f0f0f0;
-–white: #fafafa;
-–green: #00b050;
-–blue: #0070cc;
-–red: #cc2200;
+  --orange:    #FF6600;
+  --orange-dk: #cc5200;
+  --black:     #0a0a0a;
+  --g1: #1a1a1a; --g2: #2a2a2a; --g3: #444;
+  --g4: #777;   --g5: #aaa;    --g6: #ddd;
+  --g7: #f0f0f0; --white: #fafafa;
+  --mono: 'IBM Plex Mono', 'Courier New', Courier, monospace;
+  --sans: 'IBM Plex Sans Condensed', 'Arial Narrow', Arial, sans-serif;
 }
-
-- { box-sizing: border-box; margin: 0; padding: 0; }
-
-html, body { height: 100%; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html,body { height: 100%; }
 
 body {
-font-family: ‘IBM Plex Sans Condensed’, Arial Narrow, sans-serif;
-background: var(–gray-7);
-color: var(–black);
-min-height: 100vh;
-display: flex;
-flex-direction: column;
+  font-family: var(--sans);
+  background: var(--g7);
+  color: var(--black);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ── HEADER ── */
 #header {
-background: var(–orange);
-color: white;
-padding: 10px 16px 8px;
-display: flex;
-flex-direction: column;
-gap: 6px;
-box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-position: sticky;
-top: 0;
-z-index: 100;
+  background: var(--orange);
+  color: #fff;
+  padding: 10px 16px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.3);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
-
 #top-row {
-display: flex;
-align-items: baseline;
-justify-content: space-between;
-gap: 12px;
+  display: flex; align-items: baseline;
+  justify-content: space-between; gap: 12px;
 }
-
 #logo {
-font-family: ‘IBM Plex Mono’, monospace;
-font-size: 20px;
-font-weight: 700;
-letter-spacing: 2px;
-text-transform: uppercase;
+  font-family: var(--mono);
+  font-size: 20px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; line-height: 1;
 }
-
 #logo small {
-font-weight: 400;
-font-size: 12px;
-letter-spacing: 1px;
-opacity: 0.8;
-margin-left: 8px;
+  font-weight: 400; font-size: 11px;
+  letter-spacing: 1px; opacity: .75; margin-left: 8px;
 }
-
 #clock {
-font-family: ‘IBM Plex Mono’, monospace;
-font-size: 26px;
-font-weight: 700;
-letter-spacing: 3px;
-line-height: 1;
+  font-family: var(--mono);
+  font-size: 26px; font-weight: 700;
+  letter-spacing: 3px; line-height: 1;
+  min-width: 100px; text-align: right;
 }
-
 #controls-row {
-display: flex;
-align-items: center;
-gap: 6px;
-flex-wrap: wrap;
+  display: flex; align-items: center;
+  gap: 6px; flex-wrap: wrap;
+}
+.lbl {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; opacity: .7;
+}
+.sep { opacity: .45; font-size: 13px; margin: 0 1px; }
+
+input[type="time"] {
+  background: rgba(0,0,0,.2);
+  border: 1px solid rgba(255,255,255,.35);
+  color: #fff; padding: 4px 8px;
+  font-family: var(--mono); font-size: 15px; font-weight: 600;
+  border-radius: 2px; outline: none; cursor: pointer;
+}
+input[type="time"]:focus {
+  border-color: rgba(255,255,255,.8); background: rgba(0,0,0,.3);
+}
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1); opacity: .55; cursor: pointer;
 }
 
-.ctrl-label {
-font-size: 10px;
-font-weight: 600;
-letter-spacing: 1px;
-text-transform: uppercase;
-opacity: 0.75;
+.btn-h {
+  background: rgba(0,0,0,.15);
+  border: 1px solid rgba(255,255,255,.3);
+  color: #fff; padding: 4px 14px; cursor: pointer;
+  font-family: var(--mono); font-size: 13px; font-weight: 700;
+  border-radius: 2px; transition: background .1s;
+  letter-spacing: .5px; user-select: none;
 }
-
-input[type=“time”] {
-background: rgba(0,0,0,0.2);
-border: 1px solid rgba(255,255,255,0.35);
-color: white;
-padding: 4px 8px;
-font-family: ‘IBM Plex Mono’, monospace;
-font-size: 15px;
-font-weight: 600;
-cursor: pointer;
-border-radius: 2px;
-outline: none;
-}
-
-input[type=“time”]:focus {
-border-color: rgba(255,255,255,0.8);
-background: rgba(0,0,0,0.3);
-}
-
-input[type=“time”]::-webkit-calendar-picker-indicator {
-filter: invert(1);
-opacity: 0.6;
-cursor: pointer;
-}
-
-.ctrl-arrow {
-font-size: 14px;
-opacity: 0.6;
-padding: 0 2px;
-}
-
-.btn-range {
-background: rgba(0,0,0,0.15);
-border: 1px solid rgba(255,255,255,0.3);
-color: white;
-padding: 4px 14px;
-cursor: pointer;
-font-family: ‘IBM Plex Mono’, monospace;
-font-size: 13px;
-font-weight: 700;
-border-radius: 2px;
-transition: background 0.1s, color 0.1s;
-letter-spacing: 0.5px;
-}
-
-.btn-range:hover { background: rgba(0,0,0,0.3); }
-
-.btn-range.active {
-background: white;
-color: var(–orange);
-border-color: white;
-}
+.btn-h:hover  { background: rgba(0,0,0,.3); }
+.btn-h.active { background: #fff; color: var(--orange); border-color: #fff; }
 
 #status-row {
-display: flex;
-align-items: center;
-justify-content: space-between;
-font-size: 10px;
-opacity: 0.75;
-font-family: ‘IBM Plex Mono’, monospace;
-letter-spacing: 0.3px;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: .3px; opacity: .8;
 }
-
 #refresh-btn {
-background: transparent;
-border: none;
-color: white;
-cursor: pointer;
-font-family: ‘IBM Plex Mono’, monospace;
-font-size: 10px;
-opacity: 0.85;
-padding: 0;
-text-decoration: underline;
-letter-spacing: 0.3px;
+  background: transparent; border: none; color: #fff;
+  cursor: pointer; font-family: var(--mono); font-size: 10px;
+  text-decoration: underline; padding: 0; letter-spacing: .3px;
 }
 
-#refresh-btn:hover { opacity: 1; }
-
-/* ── FUTURE NOTICE ── */
-#future-notice {
-display: none;
-background: #fff3cd;
-color: #856404;
-font-size: 11px;
-padding: 5px 16px;
-font-family: ‘IBM Plex Mono’, monospace;
-border-bottom: 1px solid #ffc107;
-letter-spacing: 0.3px;
+/* ── NOTICES ── */
+.notice {
+  display: none; font-family: var(--mono); font-size: 10px;
+  letter-spacing: .3px; padding: 5px 16px; border-bottom: 1px solid;
 }
+.notice-warn  { background:#fff3cd; color:#856404; border-color:#ffc107; }
+.notice-cache { background:#d1ecf1; color:#0c5460; border-color:#bee5eb; }
+.notice-live  { background:#d4edda; color:#155724; border-color:#c3e6cb; }
 
-/* ── MAIN GRID ── */
+/* ── MAIN ── */
 #main {
-flex: 1;
-display: grid;
-grid-template-columns: 1fr 1fr;
+  flex: 1; display: grid; grid-template-columns: 1fr 1fr;
 }
+.col { background: var(--white); overflow: hidden; }
+.col:first-child { border-right: 2px solid var(--g6); }
 
-.col {
-background: var(–white);
-min-height: 0;
-overflow: hidden;
-}
-
-.col:first-child {
-border-right: 2px solid var(–gray-6);
-}
-
-/* ── COL HEADER ── */
 .col-header {
-display: flex;
-align-items: center;
-justify-content: space-between;
-padding: 7px 14px;
-background: var(–gray-1);
-color: white;
-border-bottom: 2px solid var(–orange);
-position: sticky;
-top: 0;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 7px 14px; background: var(--g1); color: #fff;
+  border-bottom: 2px solid var(--orange);
 }
-
 .col-title {
-font-family: ‘IBM Plex Mono’, monospace;
-font-size: 12px;
-font-weight: 700;
-letter-spacing: 2px;
-text-transform: uppercase;
-display: flex;
-align-items: center;
-gap: 7px;
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  display: flex; align-items: center; gap: 7px;
 }
-
-.col-arrow {
-font-size: 16px;
-color: var(–orange);
-}
-
+.col-arrow { font-size: 15px; color: var(--orange); }
 .col-count {
-font-family: ‘IBM Plex Mono’, monospace;
-font-size: 11px;
-color: var(–gray-5);
-background: var(–gray-2);
-padding: 1px 8px;
-border-radius: 10px;
-min-width: 24px;
-text-align: center;
+  font-family: var(--mono); font-size: 11px; color: var(--g5);
+  background: var(--g2); padding: 1px 8px; border-radius: 10px;
+  min-width: 26px; text-align: center;
 }
 
 /* ── TABLE ── */
-table {
-width: 100%;
-border-collapse: collapse;
-}
-
-thead tr {
-background: var(–gray-7);
-border-bottom: 1px solid var(–gray-6);
-}
-
+table { width: 100%; border-collapse: collapse; }
+thead tr { background: var(--g7); border-bottom: 1px solid var(--g6); }
 thead th {
-text-align: left;
-padding: 5px 10px 5px 14px;
-font-family: ‘IBM Plex Mono’, monospace;
-font-size: 9px;
-font-weight: 700;
-color: var(–gray-4);
-text-transform: uppercase;
-letter-spacing: 1px;
-white-space: nowrap;
+  text-align: left; padding: 5px 8px 5px 14px;
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  color: var(--g4); text-transform: uppercase; letter-spacing: 1px;
+  white-space: nowrap;
 }
-
-tbody tr {
-border-bottom: 1px solid var(–gray-7);
-transition: background 0.1s;
-}
-
+tbody tr { border-bottom: 1px solid var(--g7); transition: background .1s; }
 tbody tr:hover { background: #fff8f2; }
-
 tbody td {
-padding: 8px 10px 8px 14px;
-font-size: 13px;
-white-space: nowrap;
-overflow: hidden;
-text-overflow: ellipsis;
-vertical-align: middle;
+  padding: 7px 8px 7px 14px; font-size: 12px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  vertical-align: middle;
 }
+.td-num   { font-family:var(--mono); font-weight:700; font-size:13px; color:var(--black); letter-spacing:1px; }
+.td-time  { font-family:var(--mono); font-weight:600; font-size:14px; color:var(--orange-dk); letter-spacing:1px; }
+.td-route { color:var(--g3); font-size:12px; max-width:160px; }
 
-/* ── CELL STYLES ── */
-.td-flight {
-font-family: ‘IBM Plex Mono’, monospace;
-font-weight: 700;
-font-size: 14px;
-color: var(–black);
-letter-spacing: 1px;
+.badge {
+  display: inline-block; font-family: var(--mono);
+  font-size: 9px; font-weight: 700; letter-spacing: .5px;
+  padding: 1px 5px; border-radius: 2px; text-transform: uppercase;
 }
+.badge-live   { background:#d4edda; color:#155724; }
+.badge-ground { background:#d1ecf1; color:#0c5460; }
+.badge-hist   { background:var(--g7); color:var(--g4); }
 
-.td-time {
-font-family: ‘IBM Plex Mono’, monospace;
-font-weight: 600;
-font-size: 15px;
-color: var(–orange-dk);
-letter-spacing: 1px;
-white-space: nowrap;
-}
-
-.td-route {
-color: var(–gray-3);
-font-size: 12px;
-max-width: 150px;
-}
-
-.td-park {
-font-family: ‘IBM Plex Mono’, monospace;
-font-size: 11px;
-color: var(–gray-5);
-text-align: center;
-}
-
-/* ── STATES ── */
 .msg-cell {
-text-align: center;
-padding: 28px 16px;
-font-family: ‘IBM Plex Mono’, monospace;
-font-size: 11px;
-color: var(–gray-5);
-letter-spacing: 0.5px;
+  text-align: center; padding: 28px 16px;
+  font-family: var(--mono); font-size: 11px;
+  color: var(--g5); letter-spacing: .5px;
 }
+.msg-err { color: #cc2200; }
 
-.msg-error {
-color: var(–red);
+.dots::after {
+  content: ''; animation: ld 1.2s steps(3,end) infinite;
 }
-
-/* ── LOADING ANIMATION ── */
-.loading-dot::after {
-content: ‘’;
-animation: dots 1.2s steps(3, end) infinite;
-}
-
-@keyframes dots {
-0%   { content: ‘’; }
-33%  { content: ‘.’; }
-66%  { content: ‘..’; }
-100% { content: ‘…’; }
+@keyframes ld {
+  0%{content:'';} 33%{content:'.';} 66%{content:'..';} 100%{content:'...';}
 }
 
 /* ── FOOTER ── */
 #footer {
-padding: 6px 16px;
-font-family: ‘IBM Plex Mono’, monospace;
-font-size: 9px;
-color: var(–gray-5);
-background: var(–gray-7);
-border-top: 1px solid var(–gray-6);
-display: flex;
-justify-content: space-between;
-gap: 8px;
-flex-wrap: wrap;
-letter-spacing: 0.3px;
+  padding: 5px 16px; font-family: var(--mono); font-size: 9px;
+  color: var(--g5); background: var(--g7); border-top: 1px solid var(--g6);
+  display: flex; justify-content: space-between; flex-wrap: wrap;
+  gap: 4px; letter-spacing: .3px;
 }
 
-/* ── RESPONSIVE ── */
 @media (max-width: 640px) {
-#clock { font-size: 20px; }
-#logo { font-size: 16px; }
-
-#main {
-grid-template-columns: 1fr;
-}
-
-.col:first-child {
-border-right: none;
-border-bottom: 3px solid var(–orange);
-}
-
-.td-route { max-width: 110px; }
+  #clock { font-size: 20px; } #logo { font-size: 16px; }
+  #main  { grid-template-columns: 1fr; }
+  .col:first-child { border-right: none; border-bottom: 3px solid var(--orange); }
+  .td-route { max-width: 100px; }
 }
 </style>
 
 </head>
 <body>
 
-<!-- ═══ HEADER ═══ -->
-
 <div id="header">
   <div id="top-row">
     <div id="logo">EASYJET <small>· AGP MÁLAGA</small></div>
     <div id="clock">--:--:--</div>
   </div>
-
   <div id="controls-row">
-    <span class="ctrl-label">Desde</span>
-    <input type="time" id="start-time" title="Hora de inicio">
-    <span class="ctrl-arrow">→</span>
-    <span class="ctrl-label">Hasta</span>
-    <input type="time" id="end-time" title="Hora de fin">
+    <span class="lbl">Desde</span>
+    <input type="time" id="t-start">
+    <span class="sep">→</span>
+    <span class="lbl">Hasta</span>
+    <input type="time" id="t-end">
     &nbsp;
-    <button class="btn-range active" data-h="2" onclick="setRange(this,2)">2H</button>
-    <button class="btn-range" data-h="4" onclick="setRange(this,4)">4H</button>
-    <button class="btn-range" data-h="6" onclick="setRange(this,6)">6H</button>
+    <button class="btn-h active" onclick="setRange(this,2)">2H</button>
+    <button class="btn-h"        onclick="setRange(this,4)">4H</button>
+    <button class="btn-h"        onclick="setRange(this,6)">6H</button>
   </div>
-
   <div id="status-row">
-    <span id="status-msg">Iniciando...</span>
-    <button id="refresh-btn" onclick="fetchData()">↻ ACTUALIZAR</button>
+    <span id="st-msg">Iniciando…</span>
+    <button id="refresh-btn" onclick="doRefresh()">↻ ACTUALIZAR</button>
   </div>
 </div>
 
-<!-- ═══ AVISO FRANJA FUTURA ═══ -->
-
-<div id="future-notice">
-  ⚠ La franja seleccionada incluye tiempo futuro. Se muestran solo los vuelos ya registrados.
-</div>
-
-<!-- ═══ TABLAS ═══ -->
+<div id="n-future" class="notice notice-warn">⚠ Franja con tiempo futuro — solo se muestran vuelos ya registrados.</div>
+<div id="n-cache"  class="notice notice-cache">📦 Datos cacheados — OpenSky respondió 429 (límite alcanzado). Se reintentará en 3 min.</div>
+<div id="n-live"   class="notice notice-live">🛰 Modo en vivo (adsb.lol) — aeronaves detectadas en este momento en radio 40NM de AGP.</div>
 
 <div id="main">
-
-  <!-- LLEGADAS -->
-
   <div class="col">
     <div class="col-header">
-      <div class="col-title">
-        <span class="col-arrow">▼</span> LLEGADAS
-      </div>
-      <span class="col-count" id="arr-count">—</span>
+      <div class="col-title"><span class="col-arrow">▼</span> LLEGADAS</div>
+      <span class="col-count" id="cnt-arr">—</span>
     </div>
     <table>
-      <thead>
-        <tr>
-          <th>Vuelo</th>
-          <th>Origen</th>
-          <th>Hora</th>
-          <th>Parking</th>
-        </tr>
-      </thead>
-      <tbody id="arr-body">
-        <tr><td colspan="4" class="msg-cell"><span class="loading-dot">Cargando</span></td></tr>
+      <thead><tr><th>Vuelo</th><th>Origen</th><th>Hora</th><th>Estado</th></tr></thead>
+      <tbody id="tb-arr">
+        <tr><td colspan="4" class="msg-cell"><span class="dots">Cargando</span></td></tr>
       </tbody>
     </table>
   </div>
 
-  <!-- SALIDAS -->
-
   <div class="col">
     <div class="col-header">
-      <div class="col-title">
-        <span class="col-arrow">▲</span> SALIDAS
-      </div>
-      <span class="col-count" id="dep-count">—</span>
+      <div class="col-title"><span class="col-arrow">▲</span> SALIDAS</div>
+      <span class="col-count" id="cnt-dep">—</span>
     </div>
     <table>
-      <thead>
-        <tr>
-          <th>Vuelo</th>
-          <th>Destino</th>
-          <th>Hora</th>
-          <th>Parking</th>
-        </tr>
-      </thead>
-      <tbody id="dep-body">
-        <tr><td colspan="4" class="msg-cell"><span class="loading-dot">Cargando</span></td></tr>
+      <thead><tr><th>Vuelo</th><th>Destino</th><th>Hora</th><th>Estado</th></tr></thead>
+      <tbody id="tb-dep">
+        <tr><td colspan="4" class="msg-cell"><span class="dots">Cargando</span></td></tr>
       </tbody>
     </table>
   </div>
-
 </div>
-
-<!-- ═══ FOOTER ═══ -->
 
 <div id="footer">
-  <span>DATOS: OPENSKY NETWORK (EZY · EJU · EZS) · ICAO: LEMG</span>
-  <span>PARKING: NO DISPONIBLE VÍA API PÚBLICA · AUTO-REFRESH: 90s</span>
+  <span>FUENTES: OPENSKY-NETWORK.ORG (HISTÓRICO) · ADSB.LOL (EN VIVO)</span>
+  <span id="ft-src">AUTO-REFRESH 90s · CACHÉ 5min</span>
 </div>
 
-<!-- ═══ SCRIPT ═══ -->
-
 <script>
-// ════════════════════════════════════
-// MAPA ICAO → NOMBRE DE CIUDAD
-// ════════════════════════════════════
-const AIRPORTS = {
-  // Reino Unido
-  'EGLL': 'Londres Heathrow',  'EGKK': 'Londres Gatwick',
-  'EGSS': 'Londres Stansted',  'EGGW': 'Londres Luton',
-  'EGLC': 'Londres City',      'EGNX': 'East Midlands',
-  'EGPF': 'Glasgow',           'EGPH': 'Edimburgo',
-  'EGCC': 'Mánchester',        'EGBB': 'Birmingham',
-  'EGGD': 'Bristol',           'EGHI': 'Southampton',
-  'EGNM': 'Leeds Bradford',    'EGNT': 'Newcastle',
-  'EGNJ': 'Humberside',        'EGAC': 'Belfast City',
-  'EGAA': 'Belfast Intl',      'EGPE': 'Inverness',
-  'EGPD': 'Aberdeen',
+'use strict';
 
-  // Francia
-  'LFPG': 'París CDG',   'LFPO': 'París Orly',
-  'LFMN': 'Niza',        'LFLL': 'Lyon',
-  'LFBO': 'Toulouse',    'LFRS': 'Nantes',
-  'LFRN': 'Rennes',      'LFBZ': 'Biarritz',
-  'LFBD': 'Burdeos',     'LFTW': 'Nîmes',
-  'LFMT': 'Montpellier', 'LFKJ': 'Ajaccio',
+// ── Constantes ──────────────────────────────────────────────
+const TZ        = 'Europe/Madrid';
+const ICAO_AGP  = 'LEMG';
+const AGP_LAT   = 36.6749;
+const AGP_LON   = -4.4991;
+const CACHE_TTL = 5 * 60 * 1000;
+const RETRY_MS  = 3 * 60 * 1000;
+const EZY_PFX   = ['EZY','EJU','EZS','EZT'];
 
-  // Suiza
-  'LSGG': 'Ginebra',    'LSZH': 'Zúrich',
-  'LFSB': 'Basilea',
+const isEZY = cs => cs && EZY_PFX.some(p => cs.trim().toUpperCase().startsWith(p));
 
-  // Alemania
-  'EDDM': 'Múnich',        'EDDF': 'Fráncfort',
-  'EDDB': 'Berlín',        'EDDL': 'Düsseldorf',
-  'EDDS': 'Stuttgart',     'EDDH': 'Hamburgo',
-  'EDDC': 'Dresde',        'EDDK': 'Colonia',
-  'EDDG': 'Münster',
-
-  // Países Bajos
-  'EHAM': 'Ámsterdam',  'EHRD': 'Róterdam',
-
-  // Bélgica
-  'EBBR': 'Bruselas',
-
-  // Italia
-  'LIRF': 'Roma Fiumicino',  'LIMC': 'Milán Malpensa',
-  'LIME': 'Bérgamo',         'LIPZ': 'Venecia',
-  'LIRQ': 'Florencia',       'LICC': 'Catania',
-  'LICJ': 'Palermo',         'LIEA': 'Alghero',
-  'LIEE': 'Cagliari',        'LIRA': 'Roma Ciampino',
-  'LIRP': 'Pisa',            'LIBR': 'Brindisi',
-  'LIBD': 'Bari',            'LIBN': 'Lecce',
-
-  // España
-  'LEMD': 'Madrid',          'LEBL': 'Barcelona',
-  'LEMG': 'Málaga AGP',      'LEVC': 'Valencia',
-  'LEAL': 'Alicante',        'LEVX': 'Vigo',
-  'LEZL': 'Sevilla',         'LEBB': 'Bilbao',
-  'LEGE': 'Girona',          'LEPA': 'Palma Mallorca',
-  'LEIB': 'Ibiza',           'LEMH': 'Menorca',
-  'GCTS': 'Tenerife Sur',    'GCXO': 'Tenerife Norte',
-  'GCLP': 'Las Palmas GC',   'GCLA': 'La Palma',
-  'GCFV': 'Fuerteventura',   'GCRR': 'Lanzarote',
-  'LEST': 'Santiago Compostela', 'LEAS': 'Asturias',
-  'LECO': 'A Coruña',        'LEAM': 'Almería',
-
-  // Portugal
-  'LPPT': 'Lisboa',    'LPPR': 'Oporto',
-  'LPFR': 'Faro',      'LPMA': 'Madeira',
-  'LPAZ': 'Azores',
-
-  // Austria
-  'LOWW': 'Viena',
-
-  // Rep. Checa
-  'LKPR': 'Praga',
-
-  // Hungría
-  'LHBP': 'Budapest',
-
-  // Polonia
-  'EPWA': 'Varsovia',  'EPKK': 'Cracovia',
-
-  // Dinamarca
-  'EKCH': 'Copenhague',
-
-  // Suecia
-  'ESGG': 'Gotemburgo', 'ESSA': 'Estocolmo',
-
-  // Noruega
-  'ENGM': 'Oslo',
-
-  // Islandia
-  'BIRK': 'Reikiavik',
-
-  // Grecia
-  'LGAV': 'Atenas',        'LGIR': 'Creta Heraklion',
-  'LGTS': 'Tesalónica',    'LGKF': 'Kefalonia',
-  'LGRP': 'Rodas',         'LGKR': 'Corfú',
-  'LGZA': 'Zakynthos',     'LGMK': 'Mikonos',
-  'LGSR': 'Santorini',
-
-  // Chipre
-  'LCLK': 'Lárnaca',   'LCPH': 'Pafos',
-
-  // Israel
-  'LLBG': 'Tel Aviv',
-
-  // Marruecos
-  'GMMN': 'Casablanca',  'GMAD': 'Agadir',
-  'GMMX': 'Marrakech',   'GMTN': 'Tetuán',
-
-  // Egipto
-  'HESH': 'Sharm el-Sheikh', 'HEAR': 'Marsa Alam',
-
-  // Turquía
-  'LTAI': 'Antalya',   'LTBS': 'Dalaman',
-  'LTFE': 'Bodrum',    'LTFM': 'Estambul',
-
-  // Croacia
-  'LDDU': 'Dubrovnik', 'LDSP': 'Split',
-  'LDZA': 'Zagreb',    'LDLO': 'Lošinj',
-
-  // Montenegro
-  'LYTV': 'Tivat',    'LYPG': 'Podgorica',
-
-  // Bulgaria
-  'LBSF': 'Sofía',    'LBBO': 'Burgas',
-  'LBWN': 'Varna',
-
-  // Rumanía
-  'LROP': 'Bucarest',  'LRCL': 'Cluj',
-
-  // Eslovenia
-  'LJLJ': 'Liubliana',
-
-  // Eslovaquia
-  'LZIB': 'Bratislava',
+// ── Mapa aeropuertos ─────────────────────────────────────────
+const AP = {
+  EGLL:'Londres Heathrow',EGKK:'Londres Gatwick',EGSS:'Londres Stansted',
+  EGGW:'Londres Luton',EGLC:'Londres City',EGNX:'East Midlands',
+  EGPF:'Glasgow',EGPH:'Edimburgo',EGCC:'Mánchester',EGBB:'Birmingham',
+  EGGD:'Bristol',EGHI:'Southampton',EGNM:'Leeds Bradford',EGNT:'Newcastle',
+  EGAC:'Belfast City',EGAA:'Belfast Intl',EGPE:'Inverness',EGPD:'Aberdeen',
+  LFPG:'París CDG',LFPO:'París Orly',LFMN:'Niza',LFLL:'Lyon',
+  LFBO:'Toulouse',LFRS:'Nantes',LFBD:'Burdeos',LFMT:'Montpellier',
+  LFKJ:'Ajaccio',LSGG:'Ginebra',LSZH:'Zúrich',LFSB:'Basilea',
+  EDDM:'Múnich',EDDF:'Fráncfort',EDDB:'Berlín',EDDL:'Düsseldorf',
+  EDDS:'Stuttgart',EDDH:'Hamburgo',EDDK:'Colonia',
+  EHAM:'Ámsterdam',EHRD:'Róterdam',EBBR:'Bruselas',
+  LIRF:'Roma Fiumicino',LIMC:'Milán Malpensa',LIME:'Bérgamo',
+  LIPZ:'Venecia',LIRQ:'Florencia',LICC:'Catania',LICJ:'Palermo',
+  LIEA:'Alghero',LIEE:'Cagliari',LIRA:'Roma Ciampino',LIRP:'Pisa',LIBD:'Bari',
+  LEMD:'Madrid',LEBL:'Barcelona',LEMG:'Málaga',LEVC:'Valencia',
+  LEAL:'Alicante',LEVX:'Vigo',LEZL:'Sevilla',LEBB:'Bilbao',
+  LEGE:'Girona',LEPA:'Palma Mallorca',LEIB:'Ibiza',LEMH:'Menorca',
+  GCTS:'Tenerife Sur',GCXO:'Tenerife Norte',GCLP:'Las Palmas GC',
+  GCLA:'La Palma',GCFV:'Fuerteventura',GCRR:'Lanzarote',
+  LEST:'Santiago Compostela',LEAS:'Asturias',LECO:'A Coruña',LEAM:'Almería',
+  LPPT:'Lisboa',LPPR:'Oporto',LPFR:'Faro',LPMA:'Madeira',
+  LOWW:'Viena',LKPR:'Praga',LHBP:'Budapest',EPWA:'Varsovia',EPKK:'Cracovia',
+  EKCH:'Copenhague',ESGG:'Gotemburgo',ESSA:'Estocolmo',ENGM:'Oslo',
+  LGAV:'Atenas',LGIR:'Creta',LGTS:'Tesalónica',LGRP:'Rodas',
+  LGKR:'Corfú',LGZA:'Zakynthos',LGMK:'Mikonos',LGSR:'Santorini',
+  LCLK:'Lárnaca',LCPH:'Pafos',LLBG:'Tel Aviv',
+  GMMN:'Casablanca',GMAD:'Agadir',GMMX:'Marrakech',
+  LTAI:'Antalya',LTBS:'Dalaman',LTFE:'Bodrum',LTFM:'Estambul',
+  LDDU:'Dubrovnik',LDSP:'Split',LBBO:'Burgas',LBWN:'Varna',
+};
+const apName = icao => {
+  if (!icao) return '—';
+  const k = icao.trim().toUpperCase();
+  return AP[k] || k;
 };
 
-function airportName(icao) {
-  if (!icao) return '—';
-  return AIRPORTS[icao.trim().toUpperCase()] || icao.trim().toUpperCase();
+// ── Tiempo ───────────────────────────────────────────────────
+const fmtHHMMSS = d => d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false,timeZone:TZ});
+const fmtHHMM   = d => d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ});
+
+function timeToDate(s) {
+  const [h,m] = s.split(':').map(Number);
+  const d = new Date(); d.setHours(h,m,0,0); return d;
+}
+function dateToInput(d) {
+  const s = d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:TZ});
+  const parts = s.split(':');
+  return parts[0].padStart(2,'0') + ':' + parts[1].padStart(2,'0');
+}
+const floorHour = d => { const r=new Date(d); r.setMinutes(0,0,0); return r; };
+const toUnix    = d => Math.floor(d.getTime()/1000);
+const fromUnix  = u => new Date(u*1000);
+
+// ── Estado ───────────────────────────────────────────────────
+let activeH = 2;
+let last429 = 0;
+let fetching = false;
+
+// ── Caché localStorage ───────────────────────────────────────
+function cacheSet(key, data) {
+  try { localStorage.setItem(key, JSON.stringify({ts:Date.now(), data})); } catch(_){}
+}
+function cacheGet(key, maxAge) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const obj = JSON.parse(raw);
+    if (Date.now() - obj.ts > maxAge) return null;
+    return obj.data;
+  } catch(_){ return null; }
+}
+function cacheGetStale(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw).data : null;
+  } catch(_){ return null; }
 }
 
-// ════════════════════════════════════
-// UTILIDADES DE TIEMPO
-// ════════════════════════════════════
-const TZ = 'Europe/Madrid';
+// ── Fetch seguro con caché ───────────────────────────────────
+async function safeFetch(url, ckey) {
+  const fresh = cacheGet(ckey, CACHE_TTL);
+  if (fresh) return {data:fresh, source:'cache'};
 
-function localHHMM(date) {
-  return date.toLocaleTimeString('es-ES', {
-    hour: '2-digit', minute: '2-digit',
-    hour12: false, timeZone: TZ
-  });
-}
+  const r = await fetch(url, {signal:AbortSignal.timeout(12000)});
 
-function localHHMMSS(date) {
-  return date.toLocaleTimeString('es-ES', {
-    hour: '2-digit', minute: '2-digit', second: '2-digit',
-    hour12: false, timeZone: TZ
-  });
-}
+  if (r.status === 404) return {data:[], source:'ok'};
 
-function toUnix(date) { return Math.floor(date.getTime() / 1000); }
-function fromUnix(u)  { return new Date(u * 1000); }
-
-// Convierte "HH:MM" (input time, hora local del browser) → Date de hoy
-function timeInputToDate(str) {
-  if (!str) return null;
-  const [h, m] = str.split(':').map(Number);
-  const d = new Date();
-  d.setHours(h, m, 0, 0);
-  return d;
-}
-
-// Date → "HH:MM" para los inputs de tiempo (hora Madrid)
-function dateToInput(date) {
-  const s = date.toLocaleTimeString('es-ES', {
-    hour: '2-digit', minute: '2-digit',
-    hour12: false, timeZone: TZ
-  });
-  const [h, m] = s.split(':');
-  return `${h.padStart(2,'0')}:${m.padStart(2,'0')}`;
-}
-
-// Redondea hacia abajo a la hora en punto
-function floorToHour(date) {
-  const d = new Date(date);
-  d.setMinutes(0, 0, 0);
-  return d;
-}
-
-// ════════════════════════════════════
-// ESTADO GLOBAL
-// ════════════════════════════════════
-let activeRange = 2;
-
-// ════════════════════════════════════
-// INIT: TIEMPOS POR DEFECTO
-// ════════════════════════════════════
-function initDefaultTimes() {
-  const now   = new Date();
-  const start = floorToHour(now);          // ej: 21:00
-  const end   = new Date(start.getTime() + 2 * 3600000); // +2h → 23:00
-
-  document.getElementById('start-time').value = dateToInput(start);
-  document.getElementById('end-time').value   = dateToInput(end);
-}
-
-// ════════════════════════════════════
-// BOTONES DE FRANJA HORARIA
-// ════════════════════════════════════
-function setRange(btn, hours) {
-  activeRange = hours;
-
-  document.querySelectorAll('.btn-range').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-
-  const startVal = document.getElementById('start-time').value;
-  if (startVal) {
-    const start = timeInputToDate(startVal);
-    const end   = new Date(start.getTime() + hours * 3600000);
-    document.getElementById('end-time').value = dateToInput(end);
+  if (r.status === 429) {
+    last429 = Date.now();
+    const stale = cacheGetStale(ckey);
+    if (stale) return {data:stale, source:'stale'};
+    throw new Error('429_noCache');
   }
 
-  fetchData();
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+
+  const data = (await r.json()) || [];
+  cacheSet(ckey, data);
+  return {data, source:'ok'};
 }
 
-// ════════════════════════════════════
-// RELOJ EN TIEMPO REAL
-// ════════════════════════════════════
-function tickClock() {
-  document.getElementById('clock').textContent = localHHMMSS(new Date());
+// ── OpenSky ──────────────────────────────────────────────────
+async function fetchOpenSky(begin, fin) {
+  const BASE = 'https://opensky-network.org/api/flights';
+  const [ra, rd] = await Promise.all([
+    safeFetch(`${BASE}/arrival?airport=${ICAO_AGP}&begin=${begin}&end=${fin}`,
+              `osk_arr_${begin}_${fin}`),
+    safeFetch(`${BASE}/departure?airport=${ICAO_AGP}&begin=${begin}&end=${fin}`,
+              `osk_dep_${begin}_${fin}`)
+  ]);
+
+  const arr = ra.data.filter(f=>isEZY(f.callsign));
+  const dep = rd.data.filter(f=>isEZY(f.callsign));
+  arr.sort((a,b)=>(a.lastSeen||0)-(b.lastSeen||0));
+  dep.sort((a,b)=>(a.firstSeen||0)-(b.firstSeen||0));
+
+  const isCache = ra.source!=='ok' || rd.source!=='ok';
+  const isStale = ra.source==='stale' || rd.source==='stale';
+  return {arr, dep, isCache, isStale};
 }
 
-// ════════════════════════════════════
-// FILTRO EASYJET
-// ════════════════════════════════════
-const EZY = ['EZY','EJU','EZS','EZT'];
+// ── adsb.lol (live) ──────────────────────────────────────────
+function bearing(lat1,lon1,lat2,lon2) {
+  const dL = (lon2-lon1)*Math.PI/180;
+  const l1 = lat1*Math.PI/180, l2=lat2*Math.PI/180;
+  const y  = Math.sin(dL)*Math.cos(l2);
+  const x  = Math.cos(l1)*Math.sin(l2)-Math.sin(l1)*Math.cos(l2)*Math.cos(dL);
+  return (Math.atan2(y,x)*180/Math.PI+360)%360;
+}
+function normA(a){ a=a%360; if(a>180)a-=360; if(a<-180)a+=360; return a; }
 
-function isEasyJet(callsign) {
-  if (!callsign) return false;
-  const cs = callsign.trim().toUpperCase();
-  return EZY.some(p => cs.startsWith(p));
+async function fetchLive() {
+  const url  = `https://api.adsb.lol/v2/lat/${AGP_LAT}/lon/${AGP_LON}/dist/40`;
+  const ckey = 'adsb_live';
+
+  let data = cacheGet(ckey, 30000);
+  if (!data) {
+    const r = await fetch(url, {signal:AbortSignal.timeout(8000)});
+    if (!r.ok) throw new Error(`adsb.lol HTTP ${r.status}`);
+    const json = await r.json();
+    data = json.ac || [];
+    cacheSet(ckey, data);
+  }
+
+  const ezy = data.filter(f=>isEZY(f.flight));
+  const arr=[], dep=[];
+  const nowStr = fmtHHMM(new Date());
+
+  for (const f of ezy) {
+    const cs    = (f.flight||'').trim().toUpperCase();
+    const onGnd = f.on_ground===1||f.on_ground===true;
+    const track = f.track||0;
+    const lat   = f.lat||0, lon=f.lon||0;
+
+    const bear = bearing(lat,lon,AGP_LAT,AGP_LON);
+    const diff = Math.abs(normA(bear-track));
+
+    const entry = {_live:true, callsign:cs, nowStr, _gnd:onGnd,
+                   orig:f.origin||null, dest:f.dest||null};
+
+    if (onGnd)         arr.push(entry);
+    else if (diff<60)  arr.push(entry);
+    else               dep.push(entry);
+  }
+  return {arr, dep};
 }
 
-// ════════════════════════════════════
-// FETCH PRINCIPAL
-// ════════════════════════════════════
-async function fetchData() {
-  const startVal = document.getElementById('start-time').value;
-  const endVal   = document.getElementById('end-time').value;
-
-  if (!startVal || !endVal) return;
-
-  const now   = new Date();
-  let start   = timeInputToDate(startVal);
-  let end     = timeInputToDate(endVal);
-
-  // Si end <= start asumimos cruce de medianoche
-  if (end <= start) end.setDate(end.getDate() + 1);
-
-  // Aviso si la franja incluye tiempo futuro
-  const futureNotice = document.getElementById('future-notice');
-  futureNotice.style.display = end > now ? 'block' : 'none';
-
-  // OpenSky solo tiene datos históricos → cap en now
-  const effectiveEnd = new Date(Math.min(end.getTime(), now.getTime()));
-
-  // Si toda la franja es futura → sin datos
-  if (effectiveEnd <= start) {
-    setStatus('Franja futura — sin datos históricos disponibles');
-    renderTable('arr-body', 'arr-count', [], true);
-    renderTable('dep-body', 'dep-count', [], true);
+// ── Render ───────────────────────────────────────────────────
+function renderArr(flights, isLive) {
+  const tb = document.getElementById('tb-arr');
+  document.getElementById('cnt-arr').textContent = flights.length||'0';
+  if (!flights.length) {
+    tb.innerHTML=`<tr><td colspan="4" class="msg-cell">${
+      isLive?'Ninguna aeronave EasyJet detectada':'Sin llegadas EasyJet en esta franja'
+    }</td></tr>`;
     return;
   }
+  tb.innerHTML = flights.map(f => {
+    let num,orig,hora,badge;
+    if (f._live) {
+      num=f.callsign||'—'; orig=apName(f.orig); hora=f.nowStr;
+      badge=f._gnd?`<span class="badge badge-ground">EN PISTA</span>`
+                  :`<span class="badge badge-live">EN VUELO</span>`;
+    } else {
+      num=(f.callsign||'').trim(); orig=apName(f.estDepartureAirport);
+      hora=f.lastSeen?fmtHHMM(fromUnix(f.lastSeen)):'—:—';
+      badge=`<span class="badge badge-hist">HIST</span>`;
+    }
+    return `<tr>
+      <td class="td-num">${num}</td>
+      <td class="td-route">${orig}</td>
+      <td class="td-time">${hora}</td>
+      <td>${badge}</td>
+    </tr>`;
+  }).join('');
+}
 
-  const begin = toUnix(start);
-  const fin   = toUnix(effectiveEnd);
+function renderDep(flights, isLive) {
+  const tb = document.getElementById('tb-dep');
+  document.getElementById('cnt-dep').textContent = flights.length||'0';
+  if (!flights.length) {
+    tb.innerHTML=`<tr><td colspan="4" class="msg-cell">${
+      isLive?'Ninguna aeronave EasyJet detectada':'Sin salidas EasyJet en esta franja'
+    }</td></tr>`;
+    return;
+  }
+  tb.innerHTML = flights.map(f => {
+    let num,dest,hora,badge;
+    if (f._live) {
+      num=f.callsign||'—'; dest=apName(f.dest); hora=f.nowStr;
+      badge=f._gnd?`<span class="badge badge-ground">EN PISTA</span>`
+                  :`<span class="badge badge-live">EN VUELO</span>`;
+    } else {
+      num=(f.callsign||'').trim(); dest=apName(f.estArrivalAirport);
+      hora=f.firstSeen?fmtHHMM(fromUnix(f.firstSeen)):'—:—';
+      badge=`<span class="badge badge-hist">HIST</span>`;
+    }
+    return `<tr>
+      <td class="td-num">${num}</td>
+      <td class="td-route">${dest}</td>
+      <td class="td-time">${hora}</td>
+      <td>${badge}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── UI helpers ───────────────────────────────────────────────
+const show = (id, v) => document.getElementById(id).style.display = v?'block':'none';
+const setStatus = msg => document.getElementById('st-msg').textContent = msg;
+
+function setLoading() {
+  const h=`<tr><td colspan="4" class="msg-cell"><span class="dots">Cargando</span></td></tr>`;
+  document.getElementById('tb-arr').innerHTML=h;
+  document.getElementById('tb-dep').innerHTML=h;
+  document.getElementById('cnt-arr').textContent='…';
+  document.getElementById('cnt-dep').textContent='…';
+  setStatus('Consultando…');
+}
+function showError(msg) {
+  const h=`<tr><td colspan="4" class="msg-cell msg-err">⚠ ${msg}</td></tr>`;
+  document.getElementById('tb-arr').innerHTML=h;
+  document.getElementById('tb-dep').innerHTML=h;
+  document.getElementById('cnt-arr').textContent='!';
+  document.getElementById('cnt-dep').textContent='!';
+  setStatus(`Error: ${msg}`);
+}
+
+// ── Fallback live ─────────────────────────────────────────────
+async function tryLive() {
+  setLoading();
+  try {
+    const {arr,dep} = await fetchLive();
+    show('n-live',true); show('n-cache',false);
+    renderArr(arr,true); renderDep(dep,true);
+    setStatus(`En vivo · ${arr.length+dep.length} aeronave(s) · ${fmtHHMMSS(new Date())}`);
+    document.getElementById('ft-src').textContent='FUENTE: ADSB.LOL · EN VIVO · RADIO 40NM';
+  } catch(e) {
+    showError(`Live: ${e.message}`);
+  }
+}
+
+// ── Fetch principal ───────────────────────────────────────────
+async function fetchData() {
+  if (fetching) return;
+  fetching = true;
+
+  const sv = document.getElementById('t-start').value;
+  const ev = document.getElementById('t-end').value;
+  if (!sv||!ev) { fetching=false; return; }
+
+  const now   = new Date();
+  let start   = timeToDate(sv);
+  let end     = timeToDate(ev);
+  if (end<=start) end.setDate(end.getDate()+1);
+
+  show('n-future', end>now);
+  show('n-cache',  false);
+  show('n-live',   false);
+
+  if (start > now) {
+    setStatus('Franja futura — modo en vivo…');
+    await tryLive(); fetching=false; return;
+  }
 
   setLoading();
 
   try {
-    const BASE = 'https://opensky-network.org/api/flights';
-    const [rArr, rDep] = await Promise.all([
-      fetch(`${BASE}/arrival?airport=LEMG&begin=${begin}&end=${fin}`),
-      fetch(`${BASE}/departure?airport=LEMG&begin=${begin}&end=${fin}`)
-    ]);
-
-    if (rArr.status === 404 || rDep.status === 404) {
-      // 404 = sin vuelos en ese rango, tratar como vacío
-      renderTable('arr-body', 'arr-count', [], false);
-      renderTable('dep-body', 'dep-count', [], false);
-      setStatus(`Sin vuelos EasyJet en la franja · ${localHHMMSS(new Date())}`);
-      return;
+    if (Date.now()-last429 < RETRY_MS) {
+      await tryLive(); fetching=false; return;
     }
 
-    if (!rArr.ok) throw new Error(`HTTP ${rArr.status} en llegadas`);
-    if (!rDep.ok) throw new Error(`HTTP ${rDep.status} en salidas`);
+    const begin = toUnix(start);
+    const fin   = toUnix(new Date(Math.min(end.getTime(),now.getTime())));
+    const {arr,dep,isCache,isStale} = await fetchOpenSky(begin,fin);
 
-    const allArr = (await rArr.json()) || [];
-    const allDep = (await rDep.json()) || [];
+    if (isStale)      show('n-cache',true);
+    const src = isStale?'Datos cacheados (429)':isCache?'Desde caché':'OpenSky';
+    setStatus(`${arr.length+dep.length} vuelo(s) · ${src} · ${fmtHHMMSS(now)}`);
+    renderArr(arr,false); renderDep(dep,false);
+    document.getElementById('ft-src').textContent='FUENTE: OPENSKY-NETWORK.ORG · HISTÓRICO';
 
-    // Filtrar solo EasyJet
-    const ezyArr = allArr.filter(f => isEasyJet(f.callsign));
-    const ezyDep = allDep.filter(f => isEasyJet(f.callsign));
-
-    // Ordenar por hora
-    ezyArr.sort((a, b) => (a.lastSeen  || 0) - (b.lastSeen  || 0));
-    ezyDep.sort((a, b) => (a.firstSeen || 0) - (b.firstSeen || 0));
-
-    renderArrivals(ezyArr);
-    renderDepartures(ezyDep);
-
-    const total = ezyArr.length + ezyDep.length;
-    setStatus(`${total} vuelo(s) encontrado(s) · Actualizado ${localHHMMSS(new Date())}`);
-
-  } catch (err) {
-    const msg = `Error: ${err.message}`;
-    document.getElementById('arr-body').innerHTML =
-      `<tr><td colspan="4" class="msg-cell msg-error">${msg}</td></tr>`;
-    document.getElementById('dep-body').innerHTML =
-      `<tr><td colspan="4" class="msg-cell msg-error">${msg}</td></tr>`;
-    setStatus(`⚠ ${err.message}`);
-  }
-}
-
-// ════════════════════════════════════
-// RENDER LLEGADAS
-// ════════════════════════════════════
-function renderArrivals(flights) {
-  const tbody = document.getElementById('arr-body');
-  document.getElementById('arr-count').textContent = flights.length || '0';
-
-  if (!flights.length) {
-    tbody.innerHTML = `<tr><td colspan="4" class="msg-cell">Sin llegadas EasyJet</td></tr>`;
-    return;
+  } catch(e) {
+    if (e.message==='429_noCache') { await tryLive(); }
+    else                           { showError(e.message); }
   }
 
-  tbody.innerHTML = flights.map(f => {
-    const num   = f.callsign ? f.callsign.trim() : '—';
-    const orig  = airportName(f.estDepartureAirport);
-    const hora  = f.lastSeen  ? localHHMM(fromUnix(f.lastSeen))  : '—:—';
-    return `<tr>
-      <td class="td-flight">${num}</td>
-      <td class="td-route">${orig}</td>
-      <td class="td-time">${hora}</td>
-      <td class="td-park" title="Datos de parking no disponibles vía API pública">—</td>
-    </tr>`;
-  }).join('');
+  fetching = false;
 }
 
-// ════════════════════════════════════
-// RENDER SALIDAS
-// ════════════════════════════════════
-function renderDepartures(flights) {
-  const tbody = document.getElementById('dep-body');
-  document.getElementById('dep-count').textContent = flights.length || '0';
+// ── Controles ─────────────────────────────────────────────────
+function initTimes() {
+  const now   = new Date();
+  const start = floorHour(now);
+  const end   = new Date(start.getTime()+activeH*3600000);
+  document.getElementById('t-start').value = dateToInput(start);
+  document.getElementById('t-end').value   = dateToInput(end);
+}
 
-  if (!flights.length) {
-    tbody.innerHTML = `<tr><td colspan="4" class="msg-cell">Sin salidas EasyJet</td></tr>`;
-    return;
+function setRange(btn,h) {
+  activeH = h;
+  document.querySelectorAll('.btn-h').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const sv = document.getElementById('t-start').value;
+  if (sv) {
+    const s=timeToDate(sv);
+    document.getElementById('t-end').value=dateToInput(new Date(s.getTime()+h*3600000));
   }
-
-  tbody.innerHTML = flights.map(f => {
-    const num  = f.callsign ? f.callsign.trim() : '—';
-    const dest = airportName(f.estArrivalAirport);
-    const hora = f.firstSeen ? localHHMM(fromUnix(f.firstSeen)) : '—:—';
-    return `<tr>
-      <td class="td-flight">${num}</td>
-      <td class="td-route">${dest}</td>
-      <td class="td-time">${hora}</td>
-      <td class="td-park" title="Datos de parking no disponibles vía API pública">—</td>
-    </tr>`;
-  }).join('');
+  fetchData();
 }
 
-// ════════════════════════════════════
-// HELPERS UI
-// ════════════════════════════════════
-function setLoading() {
-  const html = `<tr><td colspan="4" class="msg-cell"><span class="loading-dot">Cargando</span></td></tr>`;
-  document.getElementById('arr-body').innerHTML = html;
-  document.getElementById('dep-body').innerHTML = html;
-  document.getElementById('arr-count').textContent = '…';
-  document.getElementById('dep-count').textContent = '…';
-  setStatus('Consultando OpenSky Network…');
-}
-
-function renderTable(tbodyId, countId, flights, isFuture) {
-  const tbody = document.getElementById(tbodyId);
-  document.getElementById(countId).textContent = '0';
-  const msg = isFuture ? 'Franja futura — sin datos' : 'Sin vuelos en esta franja';
-  tbody.innerHTML = `<tr><td colspan="4" class="msg-cell">${msg}</td></tr>`;
-}
-
-function setStatus(msg) {
-  document.getElementById('status-msg').textContent = msg;
-}
-
-// ════════════════════════════════════
-// EVENTOS DE INPUTS
-// ════════════════════════════════════
-document.getElementById('start-time').addEventListener('change', () => {
-  // Al cambiar start, ajustar end según franja activa
-  const startVal = document.getElementById('start-time').value;
-  if (startVal) {
-    const start = timeInputToDate(startVal);
-    const end   = new Date(start.getTime() + activeRange * 3600000);
-    document.getElementById('end-time').value = dateToInput(end);
+document.getElementById('t-start').addEventListener('change', () => {
+  const sv=document.getElementById('t-start').value;
+  if (sv) {
+    const s=timeToDate(sv);
+    document.getElementById('t-end').value=dateToInput(new Date(s.getTime()+activeH*3600000));
   }
   fetchData();
 });
+document.getElementById('t-end').addEventListener('change', fetchData);
+function doRefresh(){ fetchData(); }
 
-document.getElementById('end-time').addEventListener('change', fetchData);
+// ── Reloj ─────────────────────────────────────────────────────
+setInterval(()=>{ document.getElementById('clock').textContent=fmtHHMMSS(new Date()); },1000);
 
-// ════════════════════════════════════
-// ARRANQUE
-// ════════════════════════════════════
-initDefaultTimes();
-tickClock();
-setInterval(tickClock, 1000);
-
-// Primer fetch
+// ── Init ──────────────────────────────────────────────────────
+initTimes();
+document.getElementById('clock').textContent = fmtHHMMSS(new Date());
 fetchData();
-
-// Auto-refresh cada 90 segundos
 setInterval(fetchData, 90000);
 </script>
 
